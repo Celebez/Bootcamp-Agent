@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="assets/banner.png" alt="Bootcamp Agent" width="100%">
-</p>
-
 # Bootcamp Agent
 
 <p align="center">
