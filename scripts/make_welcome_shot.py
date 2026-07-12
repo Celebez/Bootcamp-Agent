@@ -5,11 +5,11 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
-BANNER = """ ____    ___    ___    ___    ____    ___    ___    ___    ___
-|  _ \  / __ \  | _ )  / __ \  |  _ \  / __ \  | _ \  / __ \  |  _ \
-| |_) || |  | | | _ \ | |  | | | |_) || |  | | |   / | |  | | | |_) |
-|  __/ | |__| | | |_) || |__| | |  __/ | |__| | | |\ \ | |__| | |  __/
-|_|     \____/  |____/  \____/  |_|     \____/  |_| \_\ \____/  |_|
+BANNER = """ ____                        _                  _         _
+| __ )  ___  _ __  ___  ___ | |_  ___  ___  ___| |_  ___ | |
+|  _ \ / _ \| '__|/ __|/ _ \| __|/ _ \/ __|/ _ \ __|/ _ \| |
+| |_) | (_) | |  | (__| (_) | |_| (_) \__ \  __/ |_| (_) | |
+|____/ \___/|_|   \___|\___/ \__|\___/|___/\___|\__|\___/|_|
 
         Agen AI . Open Source . Berbahasa Indonesia"""
 
@@ -17,9 +17,9 @@ LINES = [
     "  v0.1.0  .  self-hosted  .  https://github.com/Celebez/Bootcamp-Agent",
     "",
     "Bootcamp Agent siap. Tulis tugasmu, lalu Enter.",
-    "  . Mode tunggal (default) atau --multi untuk Supervisor multi-agensi.",
-    "  . Ketik /help untuk bantuan, /exit untuk keluar.",
-    "  . Cukup isi API key LLM (dan integrasi) . agen langsung bekerja.",
+    "  - Mode tunggal (default) atau --multi untuk Supervisor multi-agensi.",
+    "  - Ketik /help untuk bantuan, /exit untuk keluar.",
+    "  - Cukup isi API key LLM (dan integrasi) - agen langsung bekerja.",
     "-" * 68,
     "Bootcamp Agent > /help",
     "Perintah tersedia:",
@@ -41,7 +41,7 @@ ax.text(0.04, 0.93, "Bootcamp Agent", color="#21e99a", fontsize=16, fontweight="
 for i, ln in enumerate(BANNER.splitlines()):
     ax.text(0.02, 0.80 - i * 0.034, ln, color="#cfe8ff", fontsize=9, family="monospace")
 
-y = 0.80 - 5 * 0.034 - 0.02
+y = 0.80 - 6 * 0.034 - 0.02
 for ln in LINES:
     col = "#cfe8ff"
     if ln.startswith("-"):
