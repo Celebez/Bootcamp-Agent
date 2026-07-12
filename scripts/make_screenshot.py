@@ -5,16 +5,17 @@ menyimpannya sebagai proof.png. Tidak butuh server display.
 Jalankan: `python scripts/make_screenshot.py`
 """
 import asyncio
+import contextlib
 import io
 import json
 import os
 import sys
-import contextlib
 from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
@@ -109,7 +110,7 @@ async def main():
     log = await run_demo()
     outfile = "proof_cli.png"
     header = [BANNER, "", f"$ python main.py   (Bootcamp Agent v0.1.0 — {datetime.now():%Y-%m-%d %H:%M})", ""]
-    lines = header + [l for l in log.splitlines() if l.strip()]
+    lines = header + [ln for ln in log.splitlines() if ln.strip()]
     render(lines, "Bootcamp Agent — CLI Demo", outfile)
     print(f"[OK] screenshot disimpan: {outfile} ({len(lines)} baris)")
 

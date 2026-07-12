@@ -5,16 +5,15 @@ rekaman layar (stdout) ke file teks sebagai bukti tampilan berjalan.
 Jalankan: `python scripts/demo_cli.py`
 """
 import asyncio
+import contextlib
 import io
 import json
 import os
 import sys
-import contextlib
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.agent.bootcamp import Bootcamp
-from app.agent.multi import CodingAgent
 from app.llm import LLM
 from app.schema import Function, Message, Role, ToolCall
 
