@@ -19,17 +19,10 @@ BLUE = (120, 200, 255)
 try:
     font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf", 16)
     font_big = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf", 22)
+    font_title = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf", 46)
     font_small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf", 13)
 except Exception:
-    font = font_big = font_small = ImageFont.load_default()
-
-BANNER = [
-    "  ____                  _              ",
-    " | __ )  ___   ___  ___| |_ ___  _ __ ___  ",
-    " |  _ \\ / _ \\ / _ \\/ __| __/ _ \\| '__/ _ \\ ",
-    " | |_) | (_) | (_) \\__ \\ || (_) | | |  __/ ",
-    " |____/ \\___/ \\___/|___/\\__\\___/|_|  \\___| ",
-]
+    font = font_big = font_small = font_title = ImageFont.load_default()
 
 STEPS = [
     "Mempersiapkan lingkungan Python",
@@ -43,11 +36,9 @@ SPIN = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
 
 
 def banner(d):
-    y = 18
-    for ln in BANNER:
-        d.text((28, y), ln, font=font_big, fill=EMERALD)
-        y += 22
-    d.text((W // 2, y + 6), "Agen AI Serbaguna · Open Source · Bahasa Indonesia",
+    # Teks vektor (bukan ASCII art) -> selalu terbaca "BOOTCAMP AGENT"
+    d.text((26, 22), "BOOTCAMP AGENT", font=font_title, fill=EMERALD)
+    d.text((W // 2, 86), "Agen AI Serbaguna · Open Source · Bahasa Indonesia",
             font=font_small, fill=DIM, anchor="mm")
 
 
