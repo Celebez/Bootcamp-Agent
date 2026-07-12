@@ -31,10 +31,19 @@ class StoreSettings(BaseModel):
     options: Dict[str, Any] = Field(default_factory=dict)
 
 
+class IntegrationsSettings(BaseModel):
+    captcha_api_key: str = ""
+    resend_api_key: str = ""
+    vercel_token: str = ""
+    cloudflare_token: str = ""
+    cloudflare_zone: str = ""
+
+
 class AppConfig(BaseModel):
     llm: Dict[str, LLMSettings] = Field(default_factory=dict)
     sandbox: Optional[SandboxSettings] = None
     store: Optional[StoreSettings] = None
+    integrations: Optional[IntegrationsSettings] = None
 
 
 class Config:
@@ -69,7 +78,8 @@ class Config:
         if sandbox is not None and not getattr(sandbox, "mode", None):
             sandbox.mode = "off"
         store = StoreSettings(**raw["store"]) if raw.get("store") else None
-        return Config._apply_env(AppConfig(llm=llm, sandbox=sandbox, store=store))
+        integrations = IntegrationsSettings(**raw["integrations"]) if raw.get("integrations") else None
+        return Config._apply_env(AppConfig(llm=llm, sandbox=sandbox, store=store, integrations=integrations))
 
     @staticmethod
     def _apply_env(cfg: "AppConfig") -> "AppConfig":
@@ -102,6 +112,10 @@ class Config:
     @property
     def sandbox(self):
         return self._config.sandbox
+
+    @property
+    def integrations(self):
+        return self._config.integrations
 
     @property
     def sandbox_policy(self) -> "SandboxPolicy":

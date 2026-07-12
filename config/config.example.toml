@@ -26,3 +26,13 @@ allow_private_net = false
 [store]
 type = "memory"
 # opsi untuk backend terpilih, mis. untuk sqlite: { path = "memory.db" }
+
+# Integrasi eksternal — cukup isi API key agar alat terkait aktif.
+# Kosongkan baris mana pun untuk menonaktifkan. Agen hanya memuat alat
+# yang kredensialnya tersedia (tidak membawa alat mati).
+[integrations]
+captcha_api_key = ""     # 2captcha — aktifkan alat captcha_solver
+resend_api_key = ""      # Resend — aktifkan alat email_sender (fallback SMTP via env OML_SMTP_*)
+vercel_token = ""        # Vercel — aktifkan alat vercel
+cloudflare_token = ""    # Cloudflare — aktifkan alat cloudflare
+cloudflare_zone = ""     # Zone ID default untuk alat cloudflare

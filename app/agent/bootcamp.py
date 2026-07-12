@@ -11,6 +11,7 @@ from app.prompt.bootcamp import NEXT_STEP_PROMPT, SYSTEM_PROMPT
 from app.tool import BROWSER_AVAILABLE, Browser, Terminate, ToolCollection
 from app.tool.ask_human import AskHuman
 from app.tool.bash import Bash
+from app.tool.integration_loader import load_integration_tools
 from app.tool.python_execute import PythonExecute
 from app.tool.str_replace_editor import StrReplaceEditor
 from app.tool.webfetch import WebFetch
@@ -36,6 +37,7 @@ class Bootcamp(ToolCallAgent):
             _WEB_TOOL,
             AskHuman(),
             Terminate(),
+            *load_integration_tools(),  # alat integrasi yang kredensialnya tersedia
         )
     )
 

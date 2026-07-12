@@ -109,22 +109,37 @@ pip install -r requirements.txt
 python scripts/install_anim.py   # jalankan animasi sambutan kapan pun
 ```
 
-### Konfigurasi
+### Konfigurasi (Quick Setup / Manual Setup)
 
-**Opsi A — Setup interaktif:**
+Jalankan wizard setup — meniru gaya Hermes:
+
 ```bash
 python main.py --setup
 ```
 
-**Opsi B — Environment variable (zero-config):**
+Anda diberi dua pilihan:
+- **1) Quick Setup** — cukup isi Base URL + API key LLM, model otomatis terdeteksi. Langsung jalan.
+- **2) Manual Setup** — seperti Quick, lalu pilih integrasi eksternal dan isi API key-nya:
+  - **Captcha** (2captcha) → alat `captcha_solver`
+  - **Email sending** (Resend, fallback SMTP) → alat `email_sender`
+  - **Vercel** → alat `vercel`
+  - **Cloudflare** → alat `cloudflare`
+
+Cukup isi API key, alat langsung aktif. Lewati dengan Enter untuk menonaktifkan.
+Hasil disimpan ke `config/config.toml`.
+
+Atau lewati wizard via environment variable (zero-config):
 ```bash
 export OML_BASE_URL="https://api.openai.com/v1"
 export OML_API_KEY="sk-..."
 export OML_MODEL="gpt-4o"
+# integrasi (isian salah satu cukup agar alat aktif):
+export OML_CAPTCHA_API_KEY="..."
+export OML_RESEND_API_KEY="..."
+export OML_VERCEL_TOKEN="..."
+export OML_CLOUDFLARE_TOKEN="..." OML_CLOUDFLARE_ZONE="..."
 python main.py
 ```
-
-Atau salin `config/config.example.toml` → `config/config.toml` lalu isi manual.
 
 ---
 
@@ -170,6 +185,10 @@ asyncio.run(main())
 | `browser` | Mengotomasi browser sungguhan (Playwright) — opsional |
 | `ask_human` | Bertanya ke pengguna (mode interaktif) |
 | `terminate` | Mengakhiri jalannya agen dan melaporkan hasil |
+| `captcha_solver` | Menyelesaikan captcha via 2captcha (perlu `OML_CAPTCHA_API_KEY`) |
+| `email_sender` | Mengirim email via Resend/SMTP (perlu `OML_RESEND_API_KEY` atau `OML_SMTP_*`) |
+| `vercel` | Berinteraksi dengan Vercel API (perlu `OML_VERCEL_TOKEN`) |
+| `cloudflare` | Berinteraksi dengan Cloudflare API (perlu `OML_CLOUDFLARE_TOKEN`) |
 
 ---
 
