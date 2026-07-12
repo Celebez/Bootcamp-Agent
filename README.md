@@ -145,11 +145,22 @@ python main.py
 
 ## Cara menggunakan
 
-```bash
-# Mode agen tunggal (default)
-python main.py
-> Tulis fib.py, jalankan, lalu simpan hasilnya
+Saat dijalankan, Bootcamp Agent menampilkan banner pembuka lalu masuk ke loop
+interaktif (gaya Hermes):
 
+```bash
+python main.py
+```
+
+Perintah dalam loop interaktif:
+- `/help` — bantuan
+- `/multi` — beralih ke mode multi-agensi (Supervisor)
+- `/single` — kembali ke mode agen tunggal
+- `/setup` — jalankan wizard setup ulang
+- `/exit`, `/quit` — keluar
+- langsung tulis tugas lalu Enter untuk menjalankan agen
+
+```bash
 # Lewati prompt interaktif
 python main.py -p "Hitung bilangan prima kurang dari 100"
 

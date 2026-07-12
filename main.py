@@ -4,27 +4,24 @@ import asyncio
 import os
 import sys
 
+from app.banner import print_banner
 from app.config import config
 from app.logger import logger
 from app.setup import config_needs_setup, run_setup
 
+VERSION = "0.1.0"
 
-async def main(prompt: str = None, use_supervisor: bool = False):
-    if use_supervisor:
-        from app.agent.multi import Supervisor
+HELP = """Perintah tersedia:
+  /help        Tampilkan bantuan ini
+  /multi       Alih ke mode multi-agensi (Supervisor)
+  /single      Kembali ke mode agen tunggal (Bootcamp)
+  /setup       Jalankan wizard setup ulang
+  /exit, /quit Keluar
+Secara langsung: tulis tugas lalu Enter."""
 
-        agent = Supervisor()
-        logger.info("Memulai dalam mode multi-agensi (Supervisor).")
-    else:
-        from app.agent.bootcamp import Bootcamp
 
-        agent = Bootcamp()
-        logger.info("Memulai dalam mode agen tunggal (Bootcamp).")
+async def run_once(agent, prompt: str) -> None:
     try:
-        prompt = prompt or input("Masukkan prompt Anda: ")
-        if not prompt.strip():
-            logger.warning("Prompt kosong diberikan.")
-            return
         logger.warning("Memproses permintaan Anda...")
         result = await agent.run(prompt)
         logger.info("Pemrosesan permintaan selesai.")
@@ -33,6 +30,70 @@ async def main(prompt: str = None, use_supervisor: bool = False):
         logger.warning("Operasi dibatalkan.")
     finally:
         await agent.cleanup()
+
+
+async def main(initial_prompt: str = None, use_supervisor: bool = False):
+    agent = None
+    try:
+        if use_supervisor:
+            from app.agent.multi import Supervisor
+
+            agent = Supervisor()
+            logger.info("Mode multi-agensi (Supervisor).")
+        else:
+            from app.agent.bootcamp import Bootcamp
+
+            agent = Bootcamp()
+            logger.info("Mode agen tunggal (Bootcamp).")
+
+        # Non-interaktif: prompt diberikan via -p / argumen
+        if initial_prompt:
+            await run_once(agent, initial_prompt)
+            return
+
+        # Loop interaktif ala Hermes
+        multi = use_supervisor
+        while True:
+            try:
+                line = input("\nBootcamp Agent ❯ ").strip()
+            except (EOFError, KeyboardInterrupt):
+                print("\nKeluar.")
+                break
+            if not line:
+                continue
+            if line in ("/exit", "/quit"):
+                break
+            if line == "/help":
+                print(HELP)
+                continue
+            if line == "/setup":
+                run_setup()
+                continue
+            if line == "/multi":
+                multi = True
+                print("Beralih ke mode multi-agensi.")
+                continue
+            if line == "/single":
+                multi = False
+                print("Beralih ke mode agen tunggal.")
+                continue
+            # putuskan mode agen sesuai status /multi
+            if (multi and not isinstance(agent, object)) or (
+                multi and agent.__class__.__name__ != "Supervisor"
+            ):
+                await agent.cleanup()
+                from app.agent.multi import Supervisor
+
+                agent = Supervisor()
+            elif (not multi) and agent.__class__.__name__ == "Supervisor":
+                await agent.cleanup()
+                from app.agent.bootcamp import Bootcamp
+
+                agent = Bootcamp()
+            await run_once(agent, line)
+    finally:
+        if agent is not None:
+            await agent.cleanup()
 
 
 def parse_args():
@@ -56,9 +117,6 @@ if __name__ == "__main__":
         run_setup()
         sys.exit(0)
 
-    # Jalankan setup interaktif otomatis bila belum ada config yang bisa dipakai.
-    # Mode hanya-env: OML_API_KEY + OML_BASE_URL + OML_MODEL mengizinkan Anda
-    # melewati wizard sepenuhnya (tanpa edit berkas). Bila ketiganya ada, tidak jadi prompt.
     env_configured = all(
         os.environ.get(k) for k in ("OML_API_KEY", "OML_BASE_URL", "OML_MODEL")
     )
@@ -66,7 +124,6 @@ if __name__ == "__main__":
         if not env_configured and config_needs_setup():
             print("Tidak ditemukan konfigurasi API. Memulai setup...\n")
             run_setup()
-            # muat ulang config agar berkas yang baru ditulis terambil
             import importlib
 
             import app.config as _cfg
@@ -77,4 +134,5 @@ if __name__ == "__main__":
         logger.error(f"Setup gagal: {e}")
         sys.exit(1)
 
-    asyncio.run(main(prompt=args.prompt, use_supervisor=args.multi))
+    print_banner(VERSION)
+    asyncio.run(main(initial_prompt=args.prompt, use_supervisor=args.multi))
