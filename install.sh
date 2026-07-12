@@ -78,6 +78,11 @@ ensure_prereqs_termux() {
       pkg update -y >/dev/null 2>&1 || true
       pkg install -y git python clang >/dev/null 2>&1 || true
     fi
+    # Cadangan bila pip tetap harus build dari source (pydantic-core butuh Rust).
+    if ! command -v cargo >/dev/null 2>&1; then
+      log_info "Termux: memasang rust/openssl/libffi (cadangan build)..."
+      pkg install -y rust openssl libffi pkg-config binutils >/dev/null 2>&1 || true
+    fi
   fi
 }
 
@@ -149,9 +154,20 @@ install_deps() {
     "$PY" -m venv .venv
     VENV_PY="$INSTALL_DIR/.venv/bin/python"
     "$VENV_PY" -m pip install --upgrade pip
-    "$VENV_PY" -m pip install -r requirements.txt
-    [ -f requirements-browser.txt ] && "$VENV_PY" -m pip install -r requirements-browser.txt 2>/dev/null || true
-    [ -f requirements-bot.txt ] && "$VENV_PY" -m pip install -r requirements-bot.txt 2>/dev/null || true
+    # Di Termux, prioritaskan wheel (--only-binary) agar tidak build dari source
+    # (pydantic-core butuh Rust & lambat/ngadat). Fallback ke build bila perlu.
+    if [ "$OS" = "termux" ]; then
+      "$VENV_PY" -m pip install --only-binary=:all: -r requirements.txt \
+        || "$VENV_PY" -m pip install -r requirements.txt
+      [ -f requirements-browser.txt ] && { "$VENV_PY" -m pip install --only-binary=:all: -r requirements-browser.txt 2>/dev/null \
+        || "$VENV_PY" -m pip install -r requirements-browser.txt 2>/dev/null || true; }
+      [ -f requirements-bot.txt ] && { "$VENV_PY" -m pip install --only-binary=:all: -r requirements-bot.txt 2>/dev/null \
+        || "$VENV_PY" -m pip install -r requirements-bot.txt 2>/dev/null || true; }
+    else
+      "$VENV_PY" -m pip install -r requirements.txt
+      [ -f requirements-browser.txt ] && "$VENV_PY" -m pip install -r requirements-browser.txt 2>/dev/null || true
+      [ -f requirements-bot.txt ] && "$VENV_PY" -m pip install -r requirements-bot.txt 2>/dev/null || true
+    fi
   fi
   log_ok "Dependency terpasang (inti + bot + opsional browser)."
 }
