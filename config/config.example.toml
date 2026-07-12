@@ -8,9 +8,16 @@ max_tokens = 4096
 temperature = 0.0
 api_type = "openai"
 
+# Pembatas keamanan untuk alat eksekusi (Bash / Python / jaringan alat Browser).
+# mode:
+#   "off"      -> tidak ada batasan (default; cetak peringatan sekali)
+#   "warn"     -> catat pelanggaran, tetap izinkan
+#   "enforce"  -> BLOKIR perintah/URL berbahaya (fail-closed, disarankan)
+# Bila bagian [sandbox] dihapus sama sekali, perilakunya = "off".
 [sandbox]
-use_sandbox = false
+mode = "enforce"
 timeout = 300
+allow_private_net = false
 
 # Penyimpanan memori/state tahan-lama opsional.
 # type: "memory" (default, sementara, tanpa setup) | "sqlite" (berkas, stdlib) | <custom>

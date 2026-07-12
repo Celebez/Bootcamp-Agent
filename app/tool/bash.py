@@ -20,6 +20,12 @@ class Bash(BaseTool):
     }
 
     async def execute(self, command: str, timeout: int = 60) -> ToolResult:
+        from app.config import config
+
+        try:
+            config.sandbox_policy.check_shell(command)
+        except PermissionError as e:
+            return self.fail_response(str(e))
         try:
             proc = await asyncio.create_subprocess_shell(
                 command,

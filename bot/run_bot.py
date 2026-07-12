@@ -30,7 +30,6 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from app.config import config  # noqa: E402  (memuat config.toml)
 
 
 def get_mode() -> str:
@@ -43,7 +42,6 @@ def build_agent():
     AskHuman dinonaktifkan di mode bot: tak ada stdin interaktif, jadi
     memanggilnya akan menggantung bot selamanya. Diganti alat yang mengembalikan galat.
     """
-    from app.tool import ToolCollection, Terminate
     from app.tool.ask_human import AskHuman
 
     class AskHumanDisabled(AskHuman):

@@ -64,9 +64,10 @@ Bootcamp-Agent/
 │   │   ├── bootcamp.py     # Bootcamp (agen serbaguna default)
 │   │   └── multi.py        # Supervisor + sub-agensi (coding/research/browser)
 │   ├── prompt/
-│   │   ├── manus.py        # prompt sistem Bootcamp
+│   │   ├── bootcamp.py     # prompt sistem Bootcamp
 │   │   ├── toolcall.py     # prompt sistem tool-calling
 │   │   └── supervisor.py   # prompt supervisor + sub-agensi
+│   ├── sandbox.py          # kebijakan keamanan (batasi shell/python/jaringan)
 │   └── tool/
 │       ├── base.py         # BaseTool + ToolResult
 │       ├── tool_collection.py
@@ -185,18 +186,35 @@ python main.py --multi -p "Ambil screenshot beranda example.com lalu jelaskan"
 
 ---
 
-## Memori (store)
+## Keamanan (penting)
 
-Secara default Bootcamp Agent **tidak menyimpan memori** — setiap jalan agen
-segar. Untuk memori tahan-lama, aktifkan di `config.toml`:
+Bootcamp Agent adalah **agen yang dapat mengeksekusi kode dan perintah secara
+arbitrer** atas nama model AI. Ini berarti:
+
+- `python_execute` menjalankan kode Python apa pun.
+- `bash` menjalankan perintah shell apa pun.
+- `web_fetch` / `browser` dapat mengakses URL mana pun (risiko SSRF ke jaringan
+  internal / metadata cloud bila diekspos ke jaringan terbuka).
+
+**Sangat disarankan** mengaktifkan sandbox di `config.toml` (atau env):
 
 ```toml
-[store]
-type = "sqlite"          # "memory" | "sqlite" | <custom>
-path = "memory.db"
+[sandbox]
+mode = "enforce"          # "off" | "warn" | "enforce"
+timeout = 300
+allow_private_net = false
 ```
 
-Atau via env: `OML_STORE_TYPE=sqlite OML_STORE_PATH=memory.db`.
+Mode `enforce` memblokir (fail-closed):
+- perintah shell berbahaya (`rm -rf /`, `mkfs`, `dd if=`, dll.),
+- akses ke host pribadi (`localhost`, `127.0.0.1`, `169.254.169.254`, dll.),
+- pemanggilan Python berisiko (`os.system`, `subprocess`, `socket`, dll.).
+
+Lewati via env: `OML_SANDBOX_MODE=enforce OML_SANDBOX_ALLOW_PRIVATE=0`.
+
+Jika Anda menjalankan relay bot di produksi, selalu setel `OML_PROD=1` beserta
+daftar-izin (`ALLOWED_DISCORD_GUILDS` / `ALLOWED_TELEGRAM_USERS`) agar bot tidak
+terbuka untuk siapa saja.
 
 ---
 

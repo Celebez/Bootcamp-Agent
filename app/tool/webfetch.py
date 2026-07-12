@@ -16,9 +16,7 @@ import http.client
 import json
 import urllib.parse
 import urllib.request
-from email.parser import BytesHeaderParser
 from html.parser import HTMLParser
-from typing import Optional
 
 from app.tool.base import BaseTool, ToolResult
 
@@ -92,6 +90,12 @@ class WebFetch(BaseTool):
     }
 
     async def execute(self, url: str, timeout: int = 20, raw: bool = False) -> ToolResult:
+        from app.config import config
+
+        try:
+            config.sandbox_policy.check_network(url)
+        except PermissionError as e:
+            return self.fail_response(str(e))
         try:
             status, hdrs, body = await asyncio.to_thread(_fetch, url, int(timeout))
         except urllib.error.HTTPError as e:

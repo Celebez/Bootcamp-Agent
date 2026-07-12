@@ -15,7 +15,10 @@ from app.agent.toolcall import ToolCallAgent
 from app.logger import logger
 from app.prompt import SupervisorPrompt
 from app.schema import AgentState, Message, Role, ToolChoice
+
+# Fallback ringan bila Playwright/Chromium tidak terpasang (Termux).
 from app.tool import (
+    BROWSER_AVAILABLE,
     Bash,
     Browser,
     CreateChatCompletion,
@@ -26,9 +29,6 @@ from app.tool import (
     WebFetch,
 )
 from app.tool.base import BaseTool, ToolResult
-
-# Fallback ringan bila Playwright/Chromium tidak terpasang (Termux).
-from app.tool import BROWSER_AVAILABLE
 
 _WEB_TOOL = Browser() if BROWSER_AVAILABLE else WebFetch()
 

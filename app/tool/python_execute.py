@@ -27,6 +27,12 @@ class PythonExecute(BaseTool):
         """Jalankan kode dalam subproses agar bisa dihentikan paksa saat habis waktu."""
         import os
 
+        from app.config import config
+
+        try:
+            config.sandbox_policy.check_python(code)
+        except PermissionError as e:
+            return self.fail_response(str(e))
         wrapper = (
             "import sys, io, contextlib\n"
             "buf = io.StringIO()\n"

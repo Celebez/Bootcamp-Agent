@@ -4,17 +4,16 @@ from pydantic import Field, model_validator
 
 from app.agent.toolcall import ToolCallAgent
 from app.config import config
-from app.prompt.manus import NEXT_STEP_PROMPT, SYSTEM_PROMPT
-from app.tool import Terminate, ToolCollection
+from app.prompt.bootcamp import NEXT_STEP_PROMPT, SYSTEM_PROMPT
+
+# Gunakan browser sungguhan hanya bila Playwright/Chromium tersedia; bila tidak,
+# gunakan pengambil web ringan tanpa dependensi (Termux, dsb.).
+from app.tool import BROWSER_AVAILABLE, Browser, Terminate, ToolCollection
 from app.tool.ask_human import AskHuman
 from app.tool.bash import Bash
 from app.tool.python_execute import PythonExecute
 from app.tool.str_replace_editor import StrReplaceEditor
 from app.tool.webfetch import WebFetch
-
-# Gunakan browser sungguhan hanya bila Playwright/Chromium tersedia; bila tidak,
-# gunakan pengambil web ringan tanpa dependensi (Termux, dsb.).
-from app.tool import BROWSER_AVAILABLE, Browser
 
 _WEB_TOOL = Browser() if BROWSER_AVAILABLE else WebFetch()
 

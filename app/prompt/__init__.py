@@ -1,4 +1,4 @@
-from app.prompt.manus import NEXT_STEP_PROMPT, SYSTEM_PROMPT
+from app.prompt.bootcamp import NEXT_STEP_PROMPT, SYSTEM_PROMPT
 from app.prompt.supervisor import SupervisorPrompt
 from app.prompt.toolcall import SYSTEM_PROMPT as TOOLCALL_SYSTEM_PROMPT
 

@@ -1,4 +1,10 @@
 """Ekspor paket alat."""
+# Browser bersifat opsional: Playwright/Chromium berat dan sering tidak tersedia
+# (Termux, kontainer minimal). Impor secara malas agar sisa toolkit tetap
+# berfungsi tanpanya. Setel OML_NO_BROWSER=1 untuk memaksa fetcher ringan
+# meski Playwright terpasang.
+import os
+
 from app.tool.ask_human import AskHuman
 from app.tool.base import BaseTool, CLIResult, ToolFailure, ToolResult
 from app.tool.bash import Bash
@@ -8,12 +14,6 @@ from app.tool.str_replace_editor import StrReplaceEditor
 from app.tool.terminate import Terminate
 from app.tool.tool_collection import ToolCollection
 from app.tool.webfetch import WebFetch
-
-# Browser bersifat opsional: Playwright/Chromium berat dan sering tidak tersedia
-# (Termux, kontainer minimal). Impor secara malas agar sisa toolkit tetap
-# berfungsi tanpanya. Setel OML_NO_BROWSER=1 untuk memaksa fetcher ringan
-# meski Playwright terpasang.
-import os
 
 _FORCE_NO_BROWSER = os.environ.get("OML_NO_BROWSER", "").lower() in ("1", "true", "yes")
 

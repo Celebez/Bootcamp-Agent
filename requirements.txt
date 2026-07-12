@@ -1,4 +1,6 @@
 openai>=1.30.0
 pydantic>=2.0.0
 toml>=0.10.2
-playwright>=1.40.0
+# Playwright hanya diperlukan untuk alat Browser (opsional).
+# Agar install tetap ringan, ia dipisah ke requirements-browser.txt.
+# Setel OML_NO_BROWSER=1 untuk selalu memakai web_fetch ringan (tanpa Chromium).

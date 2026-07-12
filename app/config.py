@@ -21,8 +21,9 @@ class LLMSettings(BaseModel):
 
 
 class SandboxSettings(BaseModel):
-    use_sandbox: bool = False
+    mode: str = "off"               # off | warn | enforce
     timeout: int = 300
+    allow_private_net: bool = False
 
 
 class StoreSettings(BaseModel):
@@ -64,6 +65,9 @@ class Config:
                 merged = {**default, **cfg}
                 llm[name] = LLMSettings(**merged)
         sandbox = SandboxSettings(**raw["sandbox"]) if raw.get("sandbox") else None
+        # Backfill agar field baru punya nilai default saat config lama dipakai.
+        if sandbox is not None and not getattr(sandbox, "mode", None):
+            sandbox.mode = "off"
         store = StoreSettings(**raw["store"]) if raw.get("store") else None
         return Config._apply_env(AppConfig(llm=llm, sandbox=sandbox, store=store))
 
@@ -98,6 +102,20 @@ class Config:
     @property
     def sandbox(self):
         return self._config.sandbox
+
+    @property
+    def sandbox_policy(self) -> "SandboxPolicy":
+        """Kembalikan kebijakan sandbox aktif (dibuat malas, fail-soft)."""
+        from app.sandbox import SandboxPolicy
+
+        s = self._config.sandbox
+        if s is None:
+            return SandboxPolicy(mode="off")
+        return SandboxPolicy(
+            mode=getattr(s, "mode", "off") or "off",
+            timeout=getattr(s, "timeout", 300) or 300,
+            allow_private_net=getattr(s, "allow_private_net", False) or False,
+        )
 
     @property
     def workspace_root(self) -> Path:

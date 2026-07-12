@@ -10,7 +10,7 @@ dependencies = [
     "openai>=1.30.0",
     "pydantic>=2.0.0",
     "toml>=0.10.2",
-    "playwright>=1.40.0",
+    # Playwright dipisah ke requirements-browser.txt (opsional, agar install ringan).
 ]
 
 [tool.ruff]
@@ -19,4 +19,6 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "W"]
-ignore = ["E501"]
+ignore = ["E501", "E402", "F821"]
+# E402: import malas di dalam method/property sengaja (hindari siklus impor).
+# F821: forward-reference string pada type hint property (di-resolve saat runtime).
