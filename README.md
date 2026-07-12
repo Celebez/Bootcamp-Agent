@@ -96,17 +96,24 @@ Bootcamp-Agent/
 
 ## Cara instalasi
 
+**One-liner (Linux / macOS / Termux):**
 ```bash
-git clone https://github.com/Celebez/Bootcamp-Agent.git
-cd Bootcamp-Agent
-bash install.sh        # pasang dependensi + tampilkan animasi instalasi
+curl -fsSL https://bootcamp.web.id/install.sh | bash
 ```
+Installer otomatis mendeteksi OS (Linux/macOS/Termux), memasang dependency (uv atau venv+pip), meng-clone repo, menjalankan wizard setup, dan membuat launcher `bootcamp`.
 
 Atau manual:
 ```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python scripts/install_anim.py   # jalankan animasi sambutan kapan pun
+git clone https://github.com/Celebez/Bootcamp-Agent.git
+cd Bootcamp-Agent
+bash install.sh
+```
+
+Pasca instalasi:
+```bash
+cd ~/bootcamp-agent
+.venv/bin/python main.py            # CLI interaktif
+.venv/bin/python bot/run_bot.py     # bot Telegram/Discord
 ```
 
 ### Konfigurasi (Quick Setup / Manual Setup)
