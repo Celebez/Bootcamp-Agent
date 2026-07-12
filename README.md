@@ -100,20 +100,52 @@ Bootcamp-Agent/
 ```bash
 curl -fsSL https://bootcamp.web.id/install.sh | bash
 ```
-Installer otomatis mendeteksi OS (Linux/macOS/Termux), memasang dependency (uv atau venv+pip), meng-clone repo, menjalankan wizard setup, dan membuat launcher `bootcamp`.
+Installer otomatis mendeteksi OS (Linux/macOS/Termux), memasang dependency, meng-clone repo, menjalankan wizard setup, dan menampilkan animasi sambutan.
 
-Atau manual:
+### Instalasi di Termux (Android)
+
+Bootcamp Agent mendukung **Python 3.11** dan **Python 3.14.6** di Termux.
+
+1. **Update & pasang paket dasar** (git, python, clang, curl):
+   ```bash
+   pkg update && pkg upgrade -y
+   pkg install -y git python clang curl
+   ```
+   Python di Termux default adalah `python` (bukan `python3`). Installer akan
+   mendeteksinya otomatis. Bila Anda punya Python 3.11 atau 3.14.6 terpisah,
+   pastikan `python` menunjuk ke salah satunya (`python --version`).
+
+2. **Jalankan installer one-liner:**
+   ```bash
+   curl -fsSL https://bootcamp.web.id/install.sh | bash
+   ```
+   Installer akan:
+   - Mendeteksi Termux → otomatis `pkg install` bila git/python belum ada.
+   - Membuat virtual env dengan Python terdeteksi (`python` / `python3.11` / `python3.14`).
+   - Memasang dependency via `pip` (uv tidak dipaksa di Termux).
+   - Menjalankan wizard setup (isi Base URL + API key LLM).
+
+3. **Jalankan:**
+   ```bash
+   cd ~/bootcamp-agent
+   .venv/bin/python main.py            # CLI interaktif
+   .venv/bin/python bot/run_bot.py     # bot Telegram/Discord
+   ```
+
+4. **Catatan Termux:**
+   - Bila muncul galat `module not found`, jalankan ulang:
+     ```bash
+     cd ~/bootcamp-agent && .venv/bin/pip install -r requirements.txt
+     ```
+   - Untuk fitur browser, butuh Chromium (berat di HP): setel `OML_NO_BROWSER=1`
+     agar agen pakai `web_fetch` ringan tanpa Chromium.
+   - Storage terbatas: workspace ada di `~/bootcamp-agent/workspace`.
+
+Atau instalasi manual (tanpa one-liner):
 ```bash
 git clone https://github.com/Celebez/Bootcamp-Agent.git
 cd Bootcamp-Agent
 bash install.sh
-```
-
-Pasca instalasi:
-```bash
-cd ~/bootcamp-agent
-.venv/bin/python main.py            # CLI interaktif
-.venv/bin/python bot/run_bot.py     # bot Telegram/Discord
 ```
 
 ### Konfigurasi (Quick Setup / Manual Setup)
