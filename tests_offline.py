@@ -44,13 +44,23 @@ class FakeLLM(LLM):
 
 
 async def test_browser():
+    # Buat halaman HTML dummy agar navigasi tidak timeout
+    html_path = "/tmp/test_page.html"
+    with open(html_path, "w") as f:
+        f.write(
+            "<!doctype html><html><head><title>t</title></head>"
+            "<body><h1 id='title'>Hello Browser</h1></body></html>"
+        )
     b = Browser()
-    await b.execute("navigate", url="file:///tmp/test_page.html")
-    r = await b.execute("extract", selector="#title")
-    assert "Hello Browser" in r.output, r.output
-    s = await b.execute("screenshot")
-    assert s.base64_image, "tidak ada screenshot"
-    await b.cleanup()
+    try:
+        r = await b.execute("navigate", url=f"file://{html_path}")
+        assert r.error is None, f"navigate gagal: {r.error}"
+        r = await b.execute("extract", selector="#title")
+        assert "Hello Browser" in (r.output or ""), f"extract gagal: {r.output!r}"
+        s = await b.execute("screenshot")
+        assert s.base64_image, "tidak ada screenshot"
+    finally:
+        await b.cleanup()
     print("[OK] Browser: navigate/extract/screenshot/cleanup")
 
 

@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Framework agen AI serbaguna yang ringan dan berbasis open-source."
 readme = "README.md"
 license = {file = "LICENSE"}
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 authors = [{name = "Celebez"}]
 dependencies = [
     "openai>=1.30.0",
@@ -22,3 +22,11 @@ select = ["E", "F", "I", "W"]
 ignore = ["E501", "E402", "F821"]
 # E402: import malas di dalam method/property sengaja (hindari siklus impor).
 # F821: forward-reference string pada type hint property (di-resolve saat runtime).
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]

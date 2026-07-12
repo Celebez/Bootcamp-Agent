@@ -1,0 +1,38 @@
+# Docker build context — exclude yang tidak perlu masuk image
+.git/
+.gitignore
+.github/
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Config & secrets
+.env
+.env.*
+config/config.toml
+
+# Runtime
+workspace/*
+!workspace/.gitkeep
+
+# Bukti/screenshots
+proof_*.png
+demo_run.txt
+
+# Dok & tooling lokal
+*.log
+*.bak
+*.swp
+*.orig
+.DS_Store

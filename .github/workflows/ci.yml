@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-test:
+    name: lint + test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-bot.txt || true
+          pip install -r requirements-browser.txt || true
+          pip install ruff pytest pytest-asyncio pytest-cov
+
+      - name: Ruff
+        run: ruff check .
+
+      - name: Pytest
+        env:
+          OML_NO_BROWSER: "1"
+        run: |
+          python -m pytest tests/ tests_offline.py --cov=app --cov-report=term-missing -q

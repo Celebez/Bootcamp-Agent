@@ -1,7 +1,15 @@
 """Pembungkus LLM di sekeliling klien chat async yang kompatibel-OpenAI."""
+import asyncio
+import random
 from typing import List, Optional
 
-from openai import AsyncOpenAI
+from openai import (
+    APIConnectionError,
+    APITimeoutError,
+    AsyncOpenAI,
+    InternalServerError,
+    RateLimitError,
+)
 
 from app.config import config
 from app.schema import (
@@ -11,6 +19,11 @@ from app.schema import (
     ToolCall,
     ToolChoice,
 )
+
+# Galat yang aman diulang (transien). Galat auth / 4xx lain tidak diulang.
+_RETRYABLE = (APIConnectionError, APITimeoutError, InternalServerError, RateLimitError)
+_MAX_RETRIES = 3
+_BACKOFF_BASE = 0.6  # detik
 
 
 class LLM:
@@ -59,18 +72,31 @@ class LLM:
             "temperature": temperature if temperature is not None else self.temperature,
             "max_tokens": self.max_tokens,
         }
-        try:
-            if stream:
-                resp = await self.client.chat.completions.create(**params, stream=True)
-                chunks = []
-                async for chunk in resp:
-                    delta = chunk.choices[0].delta.content or ""
-                    chunks.append(delta)
-                return "".join(chunks).strip()
-            resp = await self.client.chat.completions.create(**params, stream=False)
-            return resp.choices[0].message.content
-        except Exception as e:  # jaringan / auth / rate-limit
-            raise RuntimeError(f"Permintaan LLM gagal: {e}") from e
+        last_err: Optional[Exception] = None
+        for attempt in range(_MAX_RETRIES + 1):
+            try:
+                if stream:
+                    resp = await self.client.chat.completions.create(**params, stream=True)
+                    chunks = []
+                    async for chunk in resp:
+                        delta = chunk.choices[0].delta.content or ""
+                        chunks.append(delta)
+                    return "".join(chunks).strip()
+                resp = await self.client.chat.completions.create(**params, stream=False)
+                return resp.choices[0].message.content
+            except _RETRYABLE as e:
+                last_err = e
+                if attempt >= _MAX_RETRIES:
+                    break
+                # Eksponensial + jitter: 0.6, 1.2, 2.4 (±0.3 jitter).
+                delay = _BACKOFF_BASE * (2 ** attempt) + random.uniform(0, 0.3)
+                await asyncio.sleep(delay)
+                continue
+            except Exception as e:  # jaringan / auth / rate-limit non-transien
+                raise RuntimeError(f"Permintaan LLM gagal: {e}") from e
+        raise RuntimeError(
+            f"Permintaan LLM gagal setelah {_MAX_RETRIES + 1} percobaan: {last_err}"
+        )
 
     async def ask_tool(
         self,
@@ -91,10 +117,24 @@ class LLM:
             "tool_choice": tool_choice.value if isinstance(tool_choice, ToolChoice) else tool_choice,
             "max_tokens": self.max_tokens,
         }
-        try:
-            resp = await self.client.chat.completions.create(**params)
-        except Exception as e:  # jaringan / auth / rate-limit
-            raise RuntimeError(f"Permintaan alat LLM gagal: {e}") from e
+        last_err: Optional[Exception] = None
+        resp = None
+        for attempt in range(_MAX_RETRIES + 1):
+            try:
+                resp = await self.client.chat.completions.create(**params)
+                break
+            except _RETRYABLE as e:
+                last_err = e
+                if attempt >= _MAX_RETRIES:
+                    raise RuntimeError(
+                        f"Permintaan alat LLM gagal setelah {_MAX_RETRIES + 1} percobaan: {e}"
+                    ) from e
+                delay = _BACKOFF_BASE * (2 ** attempt) + random.uniform(0, 0.3)
+                await asyncio.sleep(delay)
+            except Exception as e:  # jaringan / auth / rate-limit non-transien
+                raise RuntimeError(f"Permintaan alat LLM gagal: {e}") from e
+        if resp is None:
+            raise RuntimeError(f"Permintaan alat LLM gagal: {last_err}")
         msg = resp.choices[0].message
 
         class _Result:

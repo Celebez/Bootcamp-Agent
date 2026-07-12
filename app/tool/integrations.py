@@ -128,7 +128,10 @@ class EmailSender(BaseTool):
         host = os.environ.get("OML_SMTP_HOST", "")
         user = os.environ.get("OML_SMTP_USER", "")
         pw = os.environ.get("OML_SMTP_PASS", "")
-        port = int(os.environ.get("OML_SMTP_PORT", "587"))
+        try:
+            port = int(os.environ.get("OML_SMTP_PORT", "587"))
+        except ValueError:
+            return self.fail_response("OML_SMTP_PORT harus bilangan bulat")
         if not (host and user and pw):
             return self.fail_response("email_sender nonaktif: isi OML_RESEND_API_KEY atau OML_SMTP_*")
         try:
@@ -166,7 +169,7 @@ class VercelTool(BaseTool):
         "required": ["action"],
     }
 
-    async def execute(self, action: str, project: str = "") -> ToolResult:
+    async def execute(self, action: str, project: str = "", deployment_id: str = "") -> ToolResult:
         token = _key("vercel_token", "OML_VERCEL_TOKEN")
         if not token:
             return self.fail_response("vercel nonaktif: isi OML_VERCEL_TOKEN / [integrations].vercel_token")
@@ -176,15 +179,18 @@ class VercelTool(BaseTool):
                 url = "https://api.vercel.com/v6/deployments"
                 if project:
                     url += f"?projectId={urllib.parse.quote(project)}"
+                req = urllib.request.Request(url, headers=headers)
             elif action == "create_deployment":
                 url = "https://api.vercel.com/v13/deployments"
                 data = json.dumps({"name": project or "bootcamp", "target": "production"}).encode()
                 req = urllib.request.Request(url, data=data, method="POST", headers={**headers, "Content-Type": "application/json"})
-                r = urllib.request.urlopen(req, timeout=30).read().decode()
-                return self.success_response(r)
+            elif action == "get_logs":
+                if not deployment_id:
+                    return self.fail_response("get_logs butuh parameter 'deployment_id'")
+                url = f"https://api.vercel.com/v3/deployments/{urllib.parse.quote(deployment_id)}/events"
+                req = urllib.request.Request(url, headers=headers)
             else:
-                url = "https://api.vercel.com/v2/observability/log-drains"
-            req = urllib.request.Request(url, headers=headers)
+                return self.fail_response(f"aksi tidak dikenal: {action}")
             r = urllib.request.urlopen(req, timeout=30).read().decode()
             return self.success_response(r)
         except Exception as e:

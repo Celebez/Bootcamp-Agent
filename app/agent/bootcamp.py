@@ -14,6 +14,7 @@ from app.tool.bash import Bash
 from app.tool.integration_loader import load_integration_tools
 from app.tool.python_execute import PythonExecute
 from app.tool.str_replace_editor import StrReplaceEditor
+from app.tool.web_search import WebSearch
 from app.tool.webfetch import WebFetch
 
 _WEB_TOOL = Browser() if BROWSER_AVAILABLE else WebFetch()
@@ -34,6 +35,7 @@ class Bootcamp(ToolCallAgent):
             PythonExecute(),
             Bash(),
             StrReplaceEditor(),
+            WebSearch(),
             _WEB_TOOL,
             AskHuman(),
             Terminate(),

@@ -1,0 +1,24 @@
+name: Build Docker image
+
+on:
+  push:
+    branches: [main, master]
+    tags: ["v*"]
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t bootcamp-agent:${{ github.sha }} .
+
+      - name: Smoke test
+        run: |
+          docker run --rm bootcamp-agent:${{ github.sha }} python -c "import app; print('OK')"

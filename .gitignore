@@ -1,18 +1,61 @@
 # Python
 __pycache__/
 *.py[cod]
+*$py.class
+*.so
 *.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+.installed.cfg
+*.egg
+
+# Virtualenv
 .venv/
 venv/
-.env
+env/
+ENV/
 
-# Runtime
+# Env files
+.env
+.env.*
+!.env.example
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak
+*.orig
+.DS_Store
+Thumbs.db
+
+# Runtime / workspace
 workspace/*
 !workspace/.gitkeep
+*.log
 
 # Config (jangan commit secret)
 config/config.toml
 
-# Tooling
+# Test / coverage
+.pytest_cache/
+.mypy_cache/
 .ruff_cache/
-*.log
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+.tox/
+.cache
+
+# Build / dist
+*.spec
+*.pyo
+
+# Proof artifacts (root)
+/proof_*.png
+/demo_run.txt

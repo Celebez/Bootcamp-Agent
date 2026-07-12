@@ -1,0 +1,29 @@
+[Unit]
+Description=Bootcamp Agent — daemon AI serbaguna (VPS)
+Documentation=https://github.com/LarazatiAZL/Bootcamp-Agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Ganti User= dan ExecStart sesuai setup Anda.
+User=bootcamp
+WorkingDirectory=/opt/bootcamp-agent
+Environment="PYTHONUNBUFFERED=1"
+Environment="BOOTCAMP_HOME=/var/lib/bootcamp"
+# Mode daemon: loop interaktif nonaktif; pakai bot Telegram/Discord untuk 24/7.
+ExecStart=/opt/bootcamp-agent/.venv/bin/python -m bot.run_bot
+Restart=always
+RestartSec=5
+# Batas resource ringan untuk VPS kecil (512 MB RAM, 1 CPU).
+MemoryMax=512M
+CPUQuota=80%
+# Keamanan.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/bootcamp
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -22,13 +22,46 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import logging
 import os
 import sys
+from collections import OrderedDict
 from pathlib import Path
+from time import monotonic
 
 # Buat root repo bisa diimpor terlepas dari CWD.
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
+
+
+class LockCache:
+    """Lock per-channel/chat dengan eviksi LRU untuk mencegah memory leak.
+
+    Bot yang berjalan lama dengan banyak channel/chat akan mengakumulasi lock
+    di memori. Kita jaga agar tidak lebih dari ``maxsize`` entry.
+    """
+
+    def __init__(self, maxsize: int = 1000) -> None:
+        self._data: OrderedDict[int, tuple[asyncio.Lock, float]] = OrderedDict()
+        self._maxsize = maxsize
+
+    def get(self, key: int) -> asyncio.Lock:
+        now = monotonic()
+        item = self._data.get(key)
+        if item is None:
+            lock = asyncio.Lock()
+            self._data[key] = (lock, now)
+        else:
+            lock, _ = item
+            self._data.move_to_end(key)
+            self._data[key] = (lock, now)
+        # Eviksi tertua bila melampaui kapasitas
+        while len(self._data) > self._maxsize:
+            self._data.popitem(last=False)
+        return lock
+
+
+logger = logging.getLogger("bootcamp_bot")
 
 
 
@@ -54,6 +87,7 @@ def _parse_ids(raw: str) -> set[int]:
         except ValueError:
             print(f"⚠️  ALLOWED id bukan angka diabaikan: {tok!r}")
             if prod:
+                logger.error("ALLOWED id tidak valid di OML_PROD, tolak semua.")
                 return set()
     return out
 
@@ -133,11 +167,11 @@ async def run_discord(token: str, allowed_guilds: set[int]):
     intents.message_content = True
     bot = commands.Bot(command_prefix="!", intents=intents)
 
-    locks: dict[int, asyncio.Lock] = {}
+    locks = LockCache()
 
     @bot.event
     async def on_ready():
-        print(f"[discord] masuk sebagai {bot.user} (guild: {len(bot.guilds)})")
+        logger.info("[discord] masuk sebagai %s (guild: %d)", bot.user, len(bot.guilds))
 
     @bot.event
     async def on_message(msg: discord.Message):
@@ -148,7 +182,7 @@ async def run_discord(token: str, allowed_guilds: set[int]):
         if not msg.content.strip():
             return
 
-        lock = locks.setdefault(msg.channel.id, asyncio.Lock())
+        lock = locks.get(msg.channel.id)
         async with lock:
             async with msg.channel.typing():
                 result = await run_agent(msg.content)
@@ -171,17 +205,17 @@ async def run_telegram(token: str, allowed_users: set[int]):
         filters,
     )
 
-    locks: dict[int, asyncio.Lock] = {}
+    locks = LockCache()
 
     async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not update.message or not update.message.text:
             return
-        user_id = update.effective_user.id
+        user_id = update.effective_user.id if update.effective_user else None
         if allowed_users and user_id not in allowed_users:
             await update.message.reply_text("🚫 Tidak diizinkan.")
             return
         chat_id = update.effective_chat.id
-        lock = locks.setdefault(chat_id, asyncio.Lock())
+        lock = locks.get(chat_id)
         async with lock:
             await context.bot.send_chat_action(chat_id=chat_id, action="typing")
             result = await run_agent(update.message.text)
@@ -191,7 +225,7 @@ async def run_telegram(token: str, allowed_users: set[int]):
     app = Application.builder().token(token).build()
     app.add_handler(CommandHandler("start", lambda u, c: u.message.reply_text("Bootcamp Agent siap. Kirim sebuah tugas.")))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle))
-    print("[telegram] polling...")
+    logger.info("[telegram] polling...")
     await app.run_polling()
 
 
@@ -228,8 +262,8 @@ def main():
                 os.environ["ALLOWED_TELEGRAM_USERS"] = bot_cfg.allowed_telegram_users
             if os.environ.get("OML_PROD") is None and bot_cfg.prod:
                 os.environ["OML_PROD"] = "1"
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("Gagal membaca konfigurasi bot dari config.toml: %s", e)
 
     if args.discord_only:
         tg_token = ""
@@ -250,7 +284,7 @@ def main():
         print("   Setel setidaknya satu daftar-izin, atau jalankan tanpa OML_PROD untuk pengujian terbuka.")
         sys.exit(1)
 
-    print(f"[bot] mode={get_mode()}, discord={'on' if dc_token else 'off'}, telegram={'on' if tg_token else 'off'}")
+    print(f"[bootcamp] mode={get_mode()}, discord={'on' if dc_token else 'off'}, telegram={'on' if tg_token else 'off'}")
 
     async def serve():
         tasks = []

@@ -9,7 +9,9 @@ tetapi pesan peringatan dicetak sekali agar pengguna sadar risiko.
 """
 from __future__ import annotations
 
+import ipaddress
 import os
+import socket
 import urllib.parse
 
 
@@ -18,8 +20,22 @@ class SandboxPolicy:
     BLOCKED_HOSTS = {
         "localhost", "127.0.0.1", "0.0.0.0", "::1",
         "169.254.169.254",  # metadata cloud
-        "10.0.0.0", "192.168.0.0", "172.16.0.0",
     }
+
+    # Rentang IP privat (RFC1918 + loopback + link-local + multicast).
+    BLOCKED_NETWORKS = [
+        ipaddress.ip_network("10.0.0.0/8"),
+        ipaddress.ip_network("172.16.0.0/12"),
+        ipaddress.ip_network("192.168.0.0/16"),
+        ipaddress.ip_network("127.0.0.0/8"),
+        ipaddress.ip_network("169.254.0.0/16"),  # link-local (termasuk cloud metadata)
+        ipaddress.ip_network("0.0.0.0/8"),
+        ipaddress.ip_network("100.64.0.0/10"),  # CGN
+        ipaddress.ip_network("224.0.0.0/4"),    # multicast
+        ipaddress.ip_network("::1/128"),
+        ipaddress.ip_network("fc00::/7"),        # IPv6 ULA
+        ipaddress.ip_network("fe80::/10"),       # IPv6 link-local
+    ]
 
     # Perintah shell berbahaya yang diblokir (substring, case-insensitive).
     BLOCKED_SHELL = [
@@ -55,11 +71,10 @@ class SandboxPolicy:
         if self.mode == "warn":
             print(f"  [sandbox:warn] {msg}")
 
-    def _deny(self, msg: str) -> str:
+    def _deny(self, msg: str) -> None:
         if self.mode == "enforce":
             raise PermissionError(f"[sandbox:enforce] diblokir: {msg}")
         self._warn(msg)
-        return msg
 
     def check_shell(self, command: str) -> None:
         if self.mode == "off":
@@ -67,9 +82,8 @@ class SandboxPolicy:
         low = command.lower()
         for bad in self.BLOCKED_SHELL:
             if bad in low:
-                raise PermissionError(
-                    self._deny(f"perintah shell berbahaya terdeteksi: {bad!r}")
-                )
+                self._deny(f"perintah shell berbahaya terdeteksi: {bad!r}")
+                return
 
     def check_network(self, url: str) -> None:
         if self.mode == "off":
@@ -80,10 +94,39 @@ class SandboxPolicy:
             host = urllib.parse.urlparse(url).hostname or ""
         except Exception:
             host = ""
+        if not host:
+            self._deny("URL tanpa hostname ditolak")
+            return
+        # 1. Literal host check (cepat)
         if host in self.BLOCKED_HOSTS or host.endswith(".local"):
-            raise PermissionError(
-                self._deny(f"akses jaringan pribadi diblokir: {host}")
-            )
+            self._deny(f"akses jaringan pribadi diblokir: {host}")
+            return
+        # 2. IP literal check
+        try:
+            ip = ipaddress.ip_address(host)
+        except ValueError:
+            ip = None
+        if ip is not None:
+            for net in self.BLOCKED_NETWORKS:
+                if ip in net:
+                    self._deny(f"akses jaringan privat diblokir: {ip} ({net})")
+                    return
+            return  # IP publik literal
+        # 3. DNS resolve → periksa semua IP hasil
+        try:
+            infos = socket.getaddrinfo(host, None)
+        except socket.gaierror:
+            return  # tidak bisa resolve, biarkan layer berikutnya gagal
+        for info in infos:
+            sockaddr = info[4]
+            try:
+                ip = ipaddress.ip_address(sockaddr[0])
+            except ValueError:
+                continue
+            for net in self.BLOCKED_NETWORKS:
+                if ip in net:
+                    self._deny(f"hostname {host!r} mengarah ke IP privat {ip}")
+                    return
 
     def check_python(self, code: str) -> None:
         if self.mode == "off":
@@ -91,6 +134,5 @@ class SandboxPolicy:
         low = code.lower()
         for bad in ("os.system", "subprocess", "socket", "shutil.rmtree"):
             if bad in low:
-                raise PermissionError(
-                    self._deny(f"pemanggilan Python berisiko terdeteksi: {bad!r}")
-                )
+                self._deny(f"pemanggilan Python berisiko terdeteksi: {bad!r}")
+                return
