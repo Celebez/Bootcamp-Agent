@@ -1,11 +1,15 @@
+<p align="center">
+  <img src="assets/banner.png" alt="Bootcamp Agent" width="100%">
+</p>
+
 # Bootcamp Agent
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/></a>
-  <a href="https://www.python.org"><img src="https://img.shields.io/badge/Python-3.11%20%7C%203.14.6-3776AB?logo=python&logoColor=white" alt="Python 3.11 / 3.14.6"/></a>
-  <a href="https://github.com/Celebez/Bootcamp-Agent"><img src="https://img.shields.io/badge/Open%20Source-Source%20Terbuka-21e99a" alt="Open Source"/></a>
-  <a href="https://chat.whatsapp.com/Dn3emUVjzHyEV8wBQgIneq"><img src="https://img.shields.io/badge/WhatsApp-Gabung-25D366?logo=whatsapp&logoColor=white" alt="WhatsApp Community"/></a>
-  <a href="https://www.celebez.my.id/"><img src="https://img.shields.io/badge/Built%20by-Celebez%20Research-FFD166?logo=internet-explorer&logoColor=white" alt="Built by Celebez Research"/></a>
+  <a href="https://github.com/Celebez/Bootcamp-Agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
+  <a href="https://www.python.org"><img src="https://img.shields.io/badge/Python-3.11%20%7C%203.14.6-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.11 / 3.14.6"></a>
+  <a href="https://github.com/Celebez/Bootcamp-Agent"><img src="https://img.shields.io/badge/Open%20Source-Sumber%20Terbuka-21e99a?style=for-the-badge" alt="Open Source"></a>
+  <a href="https://chat.whatsapp.com/Dn3emUVjzHyEV8wBQgIneq"><img src="https://img.shields.io/badge/WhatsApp-Gabung-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" alt="WhatsApp Community"></a>
+  <a href="https://www.celebez.my.id/"><img src="https://img.shields.io/badge/Built%20by-Celebez%20Research-FFD166?style=for-the-badge" alt="Built by Celebez Research"></a>
 </p>
 
 **Contoh instalasi agen (animasi):**
