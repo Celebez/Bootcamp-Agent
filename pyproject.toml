@@ -1,0 +1,22 @@
+[project]
+name = "bootcamp-agent"
+version = "0.1.0"
+description = "Framework agen AI serbaguna yang ringan dan berbasis open-source."
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.10"
+authors = [{name = "Celebez"}]
+dependencies = [
+    "openai>=1.30.0",
+    "pydantic>=2.0.0",
+    "toml>=0.10.2",
+    "playwright>=1.40.0",
+]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+ignore = ["E501"]

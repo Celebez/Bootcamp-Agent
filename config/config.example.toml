@@ -1,0 +1,21 @@
+# Contoh konfigurasi Bootcamp Agent (salin ke config.toml lalu edit,
+# atau cukup jalankan `python main.py` dan wizard setup akan menulisnya).
+[llm]
+base_url = "https://api.openai.com/v1"
+api_key = "sk-..."
+model = "gpt-4o"
+max_tokens = 4096
+temperature = 0.0
+api_type = "openai"
+
+[sandbox]
+use_sandbox = false
+timeout = 300
+
+# Penyimpanan memori/state tahan-lama opsional.
+# type: "memory" (default, sementara, tanpa setup) | "sqlite" (berkas, stdlib) | <custom>
+# Pengguna dapat menambah backend sendiri (Postgres, Redis, vector DB, pohon berkas, dsb.)
+# dengan subclass StoreBackend di app/store.py dan mendaftarkannya di STORE_BACKENDS.
+[store]
+type = "memory"
+# opsi untuk backend terpilih, mis. untuk sqlite: { path = "memory.db" }

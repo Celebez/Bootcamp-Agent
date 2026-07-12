@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
+  <rect width="320" height="320" rx="24" fill="#050816"/>
+  <circle cx="160" cy="150" r="70" fill="none" stroke="#21e99a" stroke-width="6"/>
+  <path d="M125 150 L150 178 L200 122" fill="none" stroke="#21e99a" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="160" y="270" text-anchor="middle" font-family="monospace" font-size="22" fill="#cfe8ff" opacity="0.9">Bootcamp Agent</text>
+  <text x="160" y="294" text-anchor="middle" font-family="monospace" font-size="13" fill="#FFD166" opacity="0.85">Agen AI · Open Source</text>
+</svg>

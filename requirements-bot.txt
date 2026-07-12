@@ -1,0 +1,5 @@
+# Optional dependencies for the Discord / Telegram relay (bot/run_bot.py).
+# Install only if you want to run the chat-bot bridge:
+#   pip install -r requirements-bot.txt
+discord.py>=2.3.0
+python-telegram-bot>=20.0

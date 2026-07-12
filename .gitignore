@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# Runtime
+workspace/*
+!workspace/.gitkeep
+
+# Config (jangan commit secret)
+config/config.toml
+
+# Tooling
+.ruff_cache/
+*.log
