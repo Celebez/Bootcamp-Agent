@@ -17,8 +17,8 @@ class Terminate(BaseTool):
     }
 
     async def execute(self, result: str = "", **kwargs) -> ToolResult:
-        # Terima juga bentuk status/summary (gaya OpenManus) agar agent tidak
-        # crash bila model mengirim argumen tak terduga.
+        # Terima juga bentuk status/summary agar agent tidak crash bila model
+        # mengirim argumen tak terduga.
         if not result and kwargs:
             result = " ".join(str(v) for v in kwargs.values() if v)
         return self.success_response(result or "Selesai.")

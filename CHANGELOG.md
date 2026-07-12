@@ -32,7 +32,8 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [0.1.0] - 2026-07-12
 
-Rilis awal. Bootcamp Agent sebagai rebrand OpenManus-Lite ke Bahasa Indonesia:
+Rilis awal. Bootcamp Agent — framework agen AI ringan berbasis Python
+dengan dokumentasi Bahasa Indonesia:
 - Agen tunggal (Bootcamp) dan multi-agensi (Supervisor)
 - Tool: bash, python, str_replace_editor, browser, web_fetch, ask_human, terminate
 - Bootcamp Agent dapat berkomunikasi Bahasa Indonesia
