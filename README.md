@@ -11,7 +11,7 @@
 
 <img src="assets/demo.gif" width="480" alt="Demo instalasi Bootcamp Agent"/>
 
-**Framework agen AI serbaguna yang ringan, berbasis open-source, dan ditulis dalam Bahasa Indonesia.**
+**Framework agen AI serbaguna yang ringan, berbasis sumber terbuka, dan ditulis dalam Bahasa Indonesia.**
 
 Bootcamp Agent adalah kerangka agen AI yang ringkas namun lengkap: agen dapat
 berpikir, memanggil alat (tools), dan menyelesaikan tugas secara mandiri — mulai

@@ -1,6 +1,6 @@
 # Security Policy
 
-Bootcamp Agent adalah framework agen AI open-source yang dapat mengeksekusi
+Bootcamp Agent adalah framework agen AI sumber terbuka yang dapat mengeksekusi
 kode (bash, python). Secara default berjalan di host langsung; mode `sandbox`
 di config.toml memberikan lapisan pengaman tambahan.
 
