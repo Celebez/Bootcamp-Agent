@@ -2,6 +2,10 @@
 
 <img src="assets/logo.svg" width="200" alt="Logo Bootcamp Agent"/>
 
+**Contoh instalasi agen (animasi):**
+
+<img src="assets/demo.gif" width="480" alt="Demo instalasi Bootcamp Agent"/>
+
 **Framework agen AI serbaguna yang ringan, berbasis open-source, dan ditulis dalam Bahasa Indonesia.**
 
 Bootcamp Agent adalah kerangka agen AI yang ringkas namun lengkap: agen dapat
