@@ -1,5 +1,4 @@
 """Akhiri jalannya agen."""
-
 from app.tool.base import BaseTool, ToolResult
 
 
@@ -17,5 +16,9 @@ class Terminate(BaseTool):
         "required": ["result"],
     }
 
-    async def execute(self, result: str) -> ToolResult:
-        return self.success_response(result)
+    async def execute(self, result: str = "", **kwargs) -> ToolResult:
+        # Terima juga bentuk status/summary (gaya OpenManus) agar agent tidak
+        # crash bila model mengirim argumen tak terduga.
+        if not result and kwargs:
+            result = " ".join(str(v) for v in kwargs.values() if v)
+        return self.success_response(result or "Selesai.")

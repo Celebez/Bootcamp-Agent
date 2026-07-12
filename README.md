@@ -247,14 +247,20 @@ untuk siapa saja.
 
 ---
 
-## Tes
+## Demo & pembuktian
+
+Jalankan agen secara end-to-end **tanpa API** (menggunakan LLM palsu) untuk
+melihat tampilan CLI:
 
 ```bash
-python tests_offline.py
+python scripts/demo_cli.py      # jalankan Bootcamp (tunggal) + Supervisor (multi)
+python scripts/make_screenshot.py   # hasilkan proof_cli.png (tangkapan layar CLI)
 ```
 
-Menguji alat Browser dan alur multi-agensi secara deterministik tanpa panggilan
-API (menggunakan LLM palsu).
+Bukti tampilan:
+- `proof_cli.png` — output CLI saat agen menjalankan kode & menyelesaikan tugas
+- `proof_install.png` — animasi layar instalasi ala Hermes
+- `demo_run.txt` — rekaman teks jalannya demo
 
 ---
 
