@@ -2,4 +2,4 @@
 # Install only if you want to run the chat-bot bridge:
 #   pip install -r requirements-bot.txt
 discord.py>=2.3.0
-python-telegram-bot>=20.0
+python-telegram-bot>=22.8
