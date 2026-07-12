@@ -1,3 +1,3 @@
 # Dependensi untuk alat Browser (Playwright/Chromium) — opsional.
 # Hanya pasang bila Anda benar-benar butuh alat browser sungguhan.
-playwright>=1.40.0
+playwright>=1.61.0
