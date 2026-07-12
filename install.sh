@@ -71,18 +71,22 @@ detect_os() {
 need_cmd() { command -v "$1" >/dev/null 2>&1 || { log_error "Perintah '$1' tidak ditemukan. Instal dulu."; exit 1; }; }
 
 ensure_prereqs_termux() {
-  # Di Termux, pasang git + python bila belum ada (butuh akses jaringan)
+  # Di Termux, pasang git + python + rust + clang bila belum ada.
+  # Rust wajib karena pydantic-core harus build dari source (tidak ada wheel Android).
   if [ "$OS" = "termux" ]; then
-    if ! command -v git >/dev/null 2>&1 || ! command -v python >/dev/null 2>&1; then
-      log_info "Termux: memasang paket dasar (git, python, clang)..."
+    local need=()
+    command -v git    >/dev/null 2>&1 || need+=(git)
+    command -v python >/dev/null 2>&1 || need+=(python)
+    command -v clang  >/dev/null 2>&1 || need+=(clang)
+    command -v cargo  >/dev/null 2>&1 || need+=(rust)
+    command -v pkg-config >/dev/null 2>&1 || need+=(pkg-config)
+    if [ ${#need[@]} -gt 0 ]; then
+      log_info "Termux: memasang paket dasar: ${need[*]}"
       pkg update -y >/dev/null 2>&1 || true
-      pkg install -y git python clang >/dev/null 2>&1 || true
+      pkg install -y "${need[@]}" openssl libffi binutils >/dev/null 2>&1 || true
     fi
-    # Cadangan bila pip tetap harus build dari source (pydantic-core butuh Rust).
-    if ! command -v cargo >/dev/null 2>&1; then
-      log_info "Termux: memasang rust/openssl/libffi (cadangan build)..."
-      pkg install -y rust openssl libffi pkg-config binutils >/dev/null 2>&1 || true
-    fi
+    # Pastikan cargo (Rust) ada di PATH
+    export PATH="$HOME/.cargo/bin:$PATH"
   fi
 }
 
@@ -154,15 +158,19 @@ install_deps() {
     "$PY" -m venv .venv
     VENV_PY="$INSTALL_DIR/.venv/bin/python"
     "$VENV_PY" -m pip install --upgrade pip
-    # Di Termux, prioritaskan wheel (--only-binary) agar tidak build dari source
-    # (pydantic-core butuh Rust & lambat/ngadat). Fallback ke build bila perlu.
+    # Di Termux: pydantic-core tidak punya wheel Android → harus build dari source.
+    # --no-build-isolation = pakai Rust/clang sistem (tidak unduh ulang toolchain).
+    # Tanpa flag ini pip mengunduh Rust terpisah = "Installing build dependencies"
+    # yang mentok berjam-jam di HP.
     if [ "$OS" = "termux" ]; then
-      "$VENV_PY" -m pip install --only-binary=:all: -r requirements.txt \
-        || "$VENV_PY" -m pip install -r requirements.txt
-      [ -f requirements-browser.txt ] && { "$VENV_PY" -m pip install --only-binary=:all: -r requirements-browser.txt 2>/dev/null \
-        || "$VENV_PY" -m pip install -r requirements-browser.txt 2>/dev/null || true; }
-      [ -f requirements-bot.txt ] && { "$VENV_PY" -m pip install --only-binary=:all: -r requirements-bot.txt 2>/dev/null \
-        || "$VENV_PY" -m pip install -r requirements-bot.txt 2>/dev/null || true; }
+      export CARGO_NET_OFFLINE=false
+      log_info "Termux: menyiapkan build tools (setuptools-rust, maturin)..."
+      "$VENV_PY" -m pip install --upgrade setuptools wheel
+      "$VENV_PY" -m pip install setuptools-rust maturin 2>/dev/null || true
+      log_info "Termux: memasang dependency (build dari source, ~5-10 menit)..."
+      "$VENV_PY" -m pip install --no-build-isolation -r requirements.txt
+      [ -f requirements-bot.txt ] && "$VENV_PY" -m pip install --no-build-isolation -r requirements-bot.txt 2>/dev/null || true
+      [ -f requirements-browser.txt ] && "$VENV_PY" -m pip install --no-build-isolation -r requirements-browser.txt 2>/dev/null || true
     else
       "$VENV_PY" -m pip install -r requirements.txt
       [ -f requirements-browser.txt ] && "$VENV_PY" -m pip install -r requirements-browser.txt 2>/dev/null || true
