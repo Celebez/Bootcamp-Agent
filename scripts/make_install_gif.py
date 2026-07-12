@@ -5,7 +5,7 @@ jadi piksel): banner ASCII emerald, spinner per langkah, progress bar
 emerald→gold, lalu pesan sambutan. Jalankan:
     python scripts/make_install_gif.py
 """
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 W, H = 760, 460
 BG = (5, 8, 22)
@@ -95,18 +95,23 @@ def main():
     frames = []
     n = len(STEPS)
     for step in range(n):
-        for sp in range(5):
-            prog = (step + (sp + 1) / 5) / n
+        for sp in range(4):
+            prog = (step + (sp + 1) / 4) / n
             frames.append(step_frame(step, sp, min(prog, 0.99)))
-    for sp in range(4):
+    for sp in range(3):
         frames.append(step_frame(n - 1, sp, 1.0))
     frames.append(final_frame())
-    frames[0].save(
+    # Posterize (kurangi warna) + palet adaptif -> file kecil, GitHub autoplay lancar
+    small = []
+    for f in frames:
+        f2 = ImageOps.posterize(f.resize((600, 364)), 3).convert("P", palette=Image.ADAPTIVE, colors=96)
+        small.append(f2)
+    small[0].save(
         "assets/demo.gif",
-        save_all=True, append_images=frames[1:],
-        duration=110, loop=0, optimize=False,
+        save_all=True, append_images=small[1:],
+        duration=140, loop=0, optimize=True, disposal=2,
     )
-    print(f"[OK] assets/demo.gif dibuat ({len(frames)} frame) — replika CLI install asli")
+    print(f"[OK] assets/demo.gif dibuat ({len(small)} frame, {small[0].size}) — replika CLI install asli")
 
 
 if __name__ == "__main__":
