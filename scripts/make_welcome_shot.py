@@ -4,16 +4,12 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
+import pyfiglet
 
-BANNER = """ ____                        _                  _         _
-| __ )  ___  _ __  ___  ___ | |_  ___  ___  ___| |_  ___ | |
-|  _ \ / _ \| '__|/ __|/ _ \| __|/ _ \/ __|/ _ \ __|/ _ \| |
-| |_) | (_) | |  | (__| (_) | |_| (_) \__ \  __/ |_| (_) | |
-|____/ \___/|_|   \___|\___/ \__|\___/|___/\___|\__|\___/|_|
-
-        Agen AI . Open Source . Berbahasa Indonesia"""
+BANNER = pyfiglet.figlet_format("Bootcamp", font="standard").rstrip("\n")
 
 LINES = [
+    "        Agen AI . Open Source . Berbahasa Indonesia",
     "  v0.1.0  .  self-hosted  .  https://github.com/Celebez/Bootcamp-Agent",
     "",
     "Bootcamp Agent siap. Tulis tugasmu, lalu Enter.",
@@ -38,10 +34,11 @@ ax.add_patch(Rectangle((0, 0), 1, 1, color="#050816"))
 ax.add_patch(Rectangle((0, 0.86), 1, 0.14, color="#0b1a3a"))
 ax.text(0.04, 0.93, "Bootcamp Agent", color="#21e99a", fontsize=16, fontweight="bold", family="monospace")
 
-for i, ln in enumerate(BANNER.splitlines()):
-    ax.text(0.02, 0.80 - i * 0.034, ln, color="#cfe8ff", fontsize=9, family="monospace")
+b_lines = BANNER.splitlines()
+for i, ln in enumerate(b_lines):
+    ax.text(0.02, 0.80 - i * 0.030, ln, color="#cfe8ff", fontsize=8.5, family="monospace")
 
-y = 0.80 - 6 * 0.034 - 0.02
+y = 0.80 - len(b_lines) * 0.030 - 0.02
 for ln in LINES:
     col = "#cfe8ff"
     if ln.startswith("-"):

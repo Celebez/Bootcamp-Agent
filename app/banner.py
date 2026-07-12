@@ -1,18 +1,16 @@
 """Banner pembuka CLI ala Hermes, berlabel Bootcamp Agent.
 
-Menggunakan satu baris tebal (bukan pecah per-huruf) agar selalu rapi di
-semua terminal monospace.
+Menggunakan pyfiglet untuk merender "Bootcamp" dengan font rapi. Bila pyfiglet
+tidak terpasang, fallback ke teks biasa agar tidak pernah rusak.
 """
+from __future__ import annotations
 
-BANNER = r"""
- ____                        _                  _         _
-| __ )  ___  _ __  ___  ___ | |_  ___  ___  ___| |_  ___ | |
-|  _ \ / _ \| '__|/ __|/ _ \| __|/ _ \/ __|/ _ \ __|/ _ \| |
-| |_) | (_) | |  | (__| (_) | |_| (_) \__ \  __/ |_| (_) | |
-|____/ \___/|_|   \___|\___/ \__|\___/|___/\___|\__|\___/|_|
+try:
+    import pyfiglet
 
-        Agen AI . Open Source . Berbahasa Indonesia
-"""
+    BANNER = pyfiglet.figlet_format("Bootcamp", font="standard").rstrip("\n")
+except Exception:
+    BANNER = "Bootcamp Agent"
 
 WELCOME = (
     "Bootcamp Agent siap. Tulis tugasmu, lalu Enter.\n"
@@ -24,6 +22,7 @@ WELCOME = (
 
 def print_banner(version: str = "0.1.0") -> None:
     print(BANNER)
+    print("        Agen AI . Open Source . Berbahasa Indonesia")
     print(f"  v{version}  .  self-hosted  .  https://github.com/Celebez/Bootcamp-Agent\n")
     print(WELCOME)
     print("-" * 68)
