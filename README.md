@@ -98,7 +98,7 @@ Bootcamp-Agent/
 
 **One-liner (Linux / macOS / Termux):**
 ```bash
-curl -fsSL https://bootcamp.web.id/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Celebez/Bootcamp-Agent/main/install.sh | bash
 ```
 Installer otomatis mendeteksi OS (Linux/macOS/Termux), memasang dependency, meng-clone repo, menjalankan wizard setup, dan menampilkan animasi sambutan.
 
@@ -117,7 +117,7 @@ Bootcamp Agent mendukung **Python 3.11** dan **Python 3.14.6** di Termux.
 
 2. **Jalankan installer one-liner:**
    ```bash
-   curl -fsSL https://bootcamp.web.id/install.sh | bash
+   curl -fsSL https://raw.githubusercontent.com/Celebez/Bootcamp-Agent/main/install.sh | bash
    ```
    Installer akan:
    - Mendeteksi Termux → otomatis `pkg install` bila git/python belum ada.

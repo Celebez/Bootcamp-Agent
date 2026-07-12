@@ -6,7 +6,7 @@
 # Auto-detect OS, pasang dependency, clone repo, jalankan setup wizard.
 #
 # Penggunaan:
-#   curl -fsSL https://bootcamp.web.id/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/Celebez/Bootcamp-Agent/main/install.sh | bash
 #
 # Atau dengan opsi:
 #   curl -fsSL ... | bash -s -- --no-setup --branch main
@@ -38,7 +38,7 @@ while [ $# -gt 0 ]; do
     --dir) INSTALL_DIR="$2"; shift ;;
     --no-uv) USE_UV=false ;;
     -h|--help)
-      echo "Penggunaan: curl -fsSL https://bootcamp.web.id/install.sh | bash"
+      echo "Penggunaan: curl -fsSL https://raw.githubusercontent.com/Celebez/Bootcamp-Agent/main/install.sh | bash"
       echo "  --no-setup   Lewati wizard setup (cukup pasang)"
       echo "  --branch B   Branch yang di-clone (default: main)"
       echo "  --dir DIR    Direktori instalasi (default: ~/bootcamp-agent)"
@@ -142,6 +142,7 @@ install_deps() {
     uv venv --python "${PY_BIN:-3.11}" .venv 2>/dev/null || uv venv .venv
     uv pip install -r requirements.txt
     [ -f requirements-browser.txt ] && uv pip install -r requirements-browser.txt 2>/dev/null || true
+    [ -f requirements-bot.txt ] && uv pip install -r requirements-bot.txt 2>/dev/null || true
     VENV_PY="$INSTALL_DIR/.venv/bin/python"
   else
     log_info "Memasang dependency via venv + pip..."
@@ -150,8 +151,9 @@ install_deps() {
     "$VENV_PY" -m pip install --upgrade pip
     "$VENV_PY" -m pip install -r requirements.txt
     [ -f requirements-browser.txt ] && "$VENV_PY" -m pip install -r requirements-browser.txt 2>/dev/null || true
+    [ -f requirements-bot.txt ] && "$VENV_PY" -m pip install -r requirements-bot.txt 2>/dev/null || true
   fi
-  log_ok "Dependency terpasang."
+  log_ok "Dependency terpasang (inti + bot + opsional browser)."
 }
 
 run_anim() {
@@ -170,15 +172,32 @@ run_setup() {
 }
 
 make_launcher() {
-  # Buat symlink agar 'bootcamp' bisa dipanggil dari mana saja
-  TARGET="$INSTALL_DIR/.venv/bin"
-  if [ -w /usr/local/bin ]; then
-    ln -sf "$INSTALL_DIR/main.py" /usr/local/bin/bootcamp 2>/dev/null || true
-    chmod +x "$INSTALL_DIR/main.py" 2>/dev/null || true
-    log_ok "Launcher 'bootcamp' tersedia (jalankan: bootcamp)."
+  # Buat wrapper script yang menjalankan main.py via venv python,
+  # agar 'bootcamp' / 'bootcamp-bot' bisa dipanggil dari mana saja.
+  local bindir
+  if [ "$OS" = "termux" ] && [ -w "$PREFIX/bin" ]; then
+    bindir="$PREFIX/bin"
+  elif [ -w /usr/local/bin ]; then
+    bindir="/usr/local/bin"
+  elif [ -w "$HOME/.local/bin" ]; then
+    bindir="$HOME/.local/bin"
   else
-    log_info "Catatan: tambahkan $TARGET ke PATH, atau jalankan: cd $INSTALL_DIR && .venv/bin/python main.py"
+    log_info "Catatan: jalankan via: cd $INSTALL_DIR && .venv/bin/python main.py"
+    return
   fi
+  # Wrapper CLI
+  cat > "$bindir/bootcamp" <<EOF
+#!/bin/bash
+exec "$INSTALL_DIR/.venv/bin/python" "$INSTALL_DIR/main.py" "\$@"
+EOF
+  chmod +x "$bindir/bootcamp"
+  # Wrapper bot
+  cat > "$bindir/bootcamp-bot" <<EOF
+#!/bin/bash
+exec "$INSTALL_DIR/.venv/bin/python" "$INSTALL_DIR/bot/run_bot.py" "\$@"
+EOF
+  chmod +x "$bindir/bootcamp-bot"
+  log_ok "Launcher tersedia: $bindir/bootcamp  (dan $bindir/bootcamp-bot)"
 }
 
 main() {
@@ -202,8 +221,9 @@ main() {
   run_anim
   echo ""
   log_ok "Instalasi selesai! 🎉"
-  log_info "Jalankan:  cd $INSTALL_DIR && .venv/bin/python main.py"
-  log_info "Atau bot:   .venv/bin/python bot/run_bot.py"
+  log_info "Jalankan CLI:  bootcamp"
+  log_info "Jalankan bot:   bootcamp-bot"
+  log_info "Atau manual:    cd $INSTALL_DIR && .venv/bin/python main.py"
 }
 
 main
