@@ -1,5 +1,12 @@
 # Bootcamp Agent
 
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/></a>
+  <a href="https://www.python.org"><img src="https://img.shields.io/badge/Python-3.11%20%7C%203.14.6-3776AB?logo=python&logoColor=white" alt="Python 3.11 / 3.14.6"/></a>
+  <a href="https://github.com/Celebez/Bootcamp-Agent"><img src="https://img.shields.io/badge/Open%20Source-Source%20Terbuka-21e99a" alt="Open Source"/></a>
+  <a href="https://chat.whatsapp.com/Dn3emUVjzHyEV8wBQgIneq"><img src="https://img.shields.io/badge/WhatsApp-Gabung-25D366?logo=whatsapp&logoColor=white" alt="WhatsApp Community"/></a>
+</p>
+
 **Contoh instalasi agen (animasi):**
 
 <img src="assets/demo.gif" width="480" alt="Demo instalasi Bootcamp Agent"/>
