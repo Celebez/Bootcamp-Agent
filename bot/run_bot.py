@@ -212,6 +212,25 @@ def main():
     dc_token = os.environ.get("DISCORD_BOT_TOKEN", "")
     tg_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 
+    # Fallback ke config.toml [bot] bila env kosong
+    try:
+        from app.config import config
+
+        bot_cfg = config.bot
+        if bot_cfg:
+            dc_token = dc_token or (bot_cfg.discord_token or "")
+            tg_token = tg_token or (bot_cfg.telegram_token or "")
+            if os.environ.get("OML_MODE") is None and bot_cfg.mode:
+                os.environ["OML_MODE"] = bot_cfg.mode
+            if os.environ.get("ALLOWED_DISCORD_GUILDS") is None and bot_cfg.allowed_discord_guilds:
+                os.environ["ALLOWED_DISCORD_GUILDS"] = bot_cfg.allowed_discord_guilds
+            if os.environ.get("ALLOWED_TELEGRAM_USERS") is None and bot_cfg.allowed_telegram_users:
+                os.environ["ALLOWED_TELEGRAM_USERS"] = bot_cfg.allowed_telegram_users
+            if os.environ.get("OML_PROD") is None and bot_cfg.prod:
+                os.environ["OML_PROD"] = "1"
+    except Exception:
+        pass
+
     if args.discord_only:
         tg_token = ""
     if args.telegram_only:

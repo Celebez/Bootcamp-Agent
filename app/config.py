@@ -39,11 +39,21 @@ class IntegrationsSettings(BaseModel):
     cloudflare_zone: str = ""
 
 
+class BotSettings(BaseModel):
+    telegram_token: str = ""
+    discord_token: str = ""
+    mode: str = "single"            # single | multi
+    allowed_telegram_users: str = ""   # ID dipisah koma
+    allowed_discord_guilds: str = ""   # ID dipisah koma
+    prod: bool = False
+
+
 class AppConfig(BaseModel):
     llm: Dict[str, LLMSettings] = Field(default_factory=dict)
     sandbox: Optional[SandboxSettings] = None
     store: Optional[StoreSettings] = None
     integrations: Optional[IntegrationsSettings] = None
+    bot: Optional[BotSettings] = None
 
 
 class Config:
@@ -79,7 +89,8 @@ class Config:
             sandbox.mode = "off"
         store = StoreSettings(**raw["store"]) if raw.get("store") else None
         integrations = IntegrationsSettings(**raw["integrations"]) if raw.get("integrations") else None
-        return Config._apply_env(AppConfig(llm=llm, sandbox=sandbox, store=store, integrations=integrations))
+        bot = BotSettings(**raw["bot"]) if raw.get("bot") else None
+        return Config._apply_env(AppConfig(llm=llm, sandbox=sandbox, store=store, integrations=integrations, bot=bot))
 
     @staticmethod
     def _apply_env(cfg: "AppConfig") -> "AppConfig":
@@ -103,7 +114,28 @@ class Config:
             d.max_tokens = int(os.environ["OML_MAX_TOKENS"])
         if os.environ.get("OML_TEMPERATURE"):
             d.temperature = float(os.environ["OML_TEMPERATURE"])
+        # Override bot dari environment (gaya Hermes)
+        b = cfg.bot
+        if b is None:
+            b = BotSettings()
+            cfg.bot = b
+        if os.environ.get("TELEGRAM_BOT_TOKEN"):
+            b.telegram_token = os.environ["TELEGRAM_BOT_TOKEN"]
+        if os.environ.get("DISCORD_BOT_TOKEN"):
+            b.discord_token = os.environ["DISCORD_BOT_TOKEN"]
+        if os.environ.get("OML_MODE"):
+            b.mode = os.environ["OML_MODE"]
+        if os.environ.get("ALLOWED_TELEGRAM_USERS"):
+            b.allowed_telegram_users = os.environ["ALLOWED_TELEGRAM_USERS"]
+        if os.environ.get("ALLOWED_DISCORD_GUILDS"):
+            b.allowed_discord_guilds = os.environ["ALLOWED_DISCORD_GUILDS"]
+        if os.environ.get("OML_PROD") in ("1", "true", "yes"):
+            b.prod = True
         return cfg
+
+    @property
+    def bot(self):
+        return self._config.bot
 
     @property
     def llm(self) -> Dict[str, LLMSettings]:

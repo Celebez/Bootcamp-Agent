@@ -1,9 +1,7 @@
-"""Konfigurasi interaktif saat pertama kali menjalankan Bootcamp Agent.
+"""Konfigurasi interaktif ala Hermes untuk Bootcamp Agent.
 
-Meniru gaya setup Hermes: pilih QUICK SETUP (cukup isi provider AI) atau
-MANUAL SETUP (pilih & isi integrasi: captcha, email, Vercel, Cloudflare, dll).
-Hasil ditulis ke config/config.toml dan config dimuat ulang agar agen langsung
-bisa berjalan.
+Satu wizard mencakup: provider AI (base URL + api key), integrasi, dan bot
+Telegram/Discord. Hasil disimpan ke config/config.toml dan langsung dimuat ulang.
 """
 from __future__ import annotations
 
@@ -84,21 +82,42 @@ def _setup_llm() -> dict:
 
 
 INTEGRATIONS = [
-    ("captcha_api_key", "Captcha (2captcha)", "OML_CAPTCHA_API_KEY", "API key 2captcha"),
-    ("resend_api_key", "Email sending (Resend)", "OML_RESEND_API_KEY", "API key Resend"),
-    ("vercel_token", "Vercel", "OML_VERCEL_TOKEN", "Token Vercel"),
-    ("cloudflare_token", "Cloudflare", "OML_CLOUDFLARE_TOKEN", "Token Cloudflare"),
-    ("cloudflare_zone", "Cloudflare Zone ID", "OML_CLOUDFLARE_ZONE", "Zone ID Cloudflare"),
+    ("captcha_api_key", "Captcha (2captcha)", "API key 2captcha"),
+    ("resend_api_key", "Email sending (Resend)", "API key Resend"),
+    ("vercel_token", "Vercel", "Token Vercel"),
+    ("cloudflare_token", "Cloudflare", "Token Cloudflare"),
+    ("cloudflare_zone", "Cloudflare Zone ID", "Zone ID Cloudflare"),
 ]
 
 
 def _setup_integrations() -> dict:
-    print("\n--- Integrasi eksternal (isian API key, tinggal enter untuk lewati) ---")
+    print("\n--- Integrasi eksternal (isian API key, Enter untuk lewati) ---")
     out = {}
-    for key, label, env, hint in INTEGRATIONS:
+    for key, label, hint in INTEGRATIONS:
         val = _prompt(f"{label} — {hint}")
         if val:
             out[key] = val
+    return out
+
+
+def _setup_bot() -> dict:
+    print("\n--- Bot chat (Telegram / Discord) — Enter untuk lewati ---")
+    tg = _prompt("Telegram bot token (@BotFather)")
+    dc = _prompt("Discord bot token (Developer Portal)")
+    out = {}
+    if tg or dc:
+        mode = _prompt("Mode agen (single/multi)", "single")
+        tg_users = _prompt("ID user Telegram diizinkan (pisah koma, kosong=semua)")
+        dc_guilds = _prompt("ID guild Discord diizinkan (pisah koma, kosong=semua)")
+        prod = _prompt("Mode produksi? (1/0 — 1=wajib ada allow-list)", "0")
+        out = {
+            "telegram_token": tg,
+            "discord_token": dc,
+            "mode": mode or "single",
+            "allowed_telegram_users": tg_users,
+            "allowed_discord_guilds": dc_guilds,
+            "prod": prod.strip() in ("1", "true", "yes"),
+        }
     return out
 
 
@@ -107,13 +126,13 @@ def run_setup() -> None:
     print("SETUP BOOTCAMP AGENT".center(60))
     print("=" * 60)
     print("1) Quick Setup  — hanya provider AI, langsung jalan")
-    print("2) Manual Setup — provider AI + pilih integrasi (captcha,")
-    print("                  email, Vercel, Cloudflare, dll.)")
+    print("2) Manual Setup — provider AI + integrasi + bot chat")
     mode = _prompt("Pilih [1/2]", "1")
     quick = mode != "2"
 
     llm = _setup_llm()
     integrations = {} if quick else _setup_integrations()
+    bot = {} if quick else _setup_bot()
 
     toml = (
         "# Konfigurasi Bootcamp Agent (dibuat oleh setup interaktif)\n"
@@ -135,6 +154,13 @@ def run_setup() -> None:
         toml += "\n[integrations]\n"
         for k, v in integrations.items():
             toml += f'{k} = "{v}"\n'
+    if bot:
+        toml += "\n[bot]\n"
+        for k, v in bot.items():
+            if isinstance(v, bool):
+                toml += f"{k} = {str(v).lower()}\n"
+            else:
+                toml += f'{k} = "{v}"\n'
 
     CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
     CONFIG_PATH.write_text(toml)
@@ -142,5 +168,7 @@ def run_setup() -> None:
     print(f"Model terpilih: {llm['model']}")
     if integrations:
         print(f"Integrasi aktif: {', '.join(integrations.keys())}")
-    else:
-        print("Tidak ada integrasi dipilih (bisa ditambah nanti di config.toml).")
+    if bot:
+        print("Bot dikonfigurasi (jalankan: python bot/run_bot.py)")
+    if not (integrations or bot):
+        print("Tidak ada integrasi/bot dipilih (bisa ditambah nanti di config.toml).")

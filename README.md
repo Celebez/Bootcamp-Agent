@@ -119,13 +119,9 @@ python main.py --setup
 
 Anda diberi dua pilihan:
 - **1) Quick Setup** — cukup isi Base URL + API key LLM, model otomatis terdeteksi. Langsung jalan.
-- **2) Manual Setup** — seperti Quick, lalu pilih integrasi eksternal dan isi API key-nya:
-  - **Captcha** (2captcha) → alat `captcha_solver`
-  - **Email sending** (Resend, fallback SMTP) → alat `email_sender`
-  - **Vercel** → alat `vercel`
-  - **Cloudflare** → alat `cloudflare`
+- **2) Manual Setup** — seperti Quick, lalu pilih integrasi eksternal (captcha, email, Vercel, Cloudflare) dan bot chat (Telegram, Discord) dengan memasukkan token masing-masing. Semua tersimpan otomatis ke `config/config.toml`.
 
-Cukup isi API key, alat langsung aktif. Lewati dengan Enter untuk menonaktifkan.
+Cukup isi API key / URL / token, alat & bot langsung aktif. Lewati dengan Enter untuk menonaktifkan.
 Hasil disimpan ke `config/config.toml`.
 
 Atau lewati wizard via environment variable (zero-config):

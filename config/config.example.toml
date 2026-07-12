@@ -36,3 +36,13 @@ resend_api_key = ""      # Resend — aktifkan alat email_sender (fallback SMTP 
 vercel_token = ""        # Vercel — aktifkan alat vercel
 cloudflare_token = ""    # Cloudflare — aktifkan alat cloudflare
 cloudflare_zone = ""     # Zone ID default untuk alat cloudflare
+
+# Bot chat Telegram / Discord — semua opsional, cukup isi token untuk aktif.
+# Setelah diisi, jalankan: python bot/run_bot.py
+[bot]
+telegram_token = ""          # token dari @BotFather
+discord_token = ""           # token dari Discord Developer Portal
+mode = "single"              # single (Bootcamp) | multi (Supervisor)
+allowed_telegram_users = ""  # ID user dipisah koma (kosong = semua)
+allowed_discord_guilds = ""  # ID guild dipisah koma (kosong = semua)
+prod = false                 # true = wajib ada allow-list (tolak bila kosong)

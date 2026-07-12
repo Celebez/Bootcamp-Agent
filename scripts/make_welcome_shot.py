@@ -3,8 +3,8 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
 import pyfiglet
+from matplotlib.patches import Rectangle
 
 BANNER = pyfiglet.figlet_format("Bootcamp", font="standard").rstrip("\n")
 
