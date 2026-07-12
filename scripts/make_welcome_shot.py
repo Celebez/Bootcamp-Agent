@@ -5,11 +5,11 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
-BANNER = r"""  ____              _     __  __              _            _
- | __ )  ___   ___ | |__ |  \/  | __ _  ___ | |_ ___   ___(_) ___
- |  _ \ / _ \ / _ \| '_ \| |\/| |/ _` |/ _ \| __/ _ \ / __| |/ __|
- | |_) | (_) | (_) | |_) | |  | | (_| | (_) | || (_) | (__| | (__
- |____/ \___/ \___/|_.__/|_|  |_|\__,_|\___/ \__\___/ \___|_|\___|
+BANNER = """ ____    ___    ___    ___    ____    ___    ___    ___    ___
+|  _ \  / __ \  | _ )  / __ \  |  _ \  / __ \  | _ \  / __ \  |  _ \
+| |_) || |  | | | _ \ | |  | | | |_) || |  | | |   / | |  | | | |_) |
+|  __/ | |__| | | |_) || |__| | |  __/ | |__| | | |\ \ | |__| | |  __/
+|_|     \____/  |____/  \____/  |_|     \____/  |_| \_\ \____/  |_|
 
         Agen AI . Open Source . Berbahasa Indonesia"""
 
@@ -38,13 +38,12 @@ ax.add_patch(Rectangle((0, 0), 1, 1, color="#050816"))
 ax.add_patch(Rectangle((0, 0.86), 1, 0.14, color="#0b1a3a"))
 ax.text(0.04, 0.93, "Bootcamp Agent", color="#21e99a", fontsize=16, fontweight="bold", family="monospace")
 
-# banner
 for i, ln in enumerate(BANNER.splitlines()):
-    ax.text(0.04, 0.80 - i * 0.032, ln, color="#cfe8ff", fontsize=9.5, family="monospace")
+    ax.text(0.02, 0.80 - i * 0.034, ln, color="#cfe8ff", fontsize=9, family="monospace")
 
-y = 0.80 - 6 * 0.032 - 0.02
+y = 0.80 - 5 * 0.034 - 0.02
 for ln in LINES:
-    col = "#FFD166" if ln.startswith("Bootcamp Agent >") else ("#cfe8ff" if ln.startswith("  /") or ln.startswith("  .") or ln.startswith("Perintah") or ln.startswith("  /help") else "#cfe8ff")
+    col = "#cfe8ff"
     if ln.startswith("-"):
         col = "#283c5a"
     elif ln.startswith("Bootcamp Agent >"):
