@@ -98,8 +98,12 @@ def run_setup() -> None:
         'api_type = "openai"\n'
         "\n"
         "[sandbox]\n"
-        "use_sandbox = false\n"
+        'mode = "enforce"\n'
         "timeout = 300\n"
+        "allow_private_net = false\n"
+        "\n"
+        "[store]\n"
+        'type = "memory"\n'
     )
     CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
     CONFIG_PATH.write_text(toml_text)
