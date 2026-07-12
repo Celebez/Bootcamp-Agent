@@ -15,12 +15,9 @@ berat.
 ## Apa itu Bootcamp Agent?
 
 Bootcamp Agent adalah **framework agen AI serbaguna yang ringkas dan mudah
-dibaca**. Ia mengambil arsitektur agen modern (Think → Act → Observe) dan
-menyederhanakannya agar siapa pun bisa memahami dan memodifikasinya.
-
-Original OpenManus sangat powerful tapi besar: otomasi browser, server MCP,
-plugin tak terhingga. Bootcamp Agent mengelupas framework hingga kerangkanya
-saja:
+dibaca**. Ia mengambil pola agen modern (Think → Act → Observe) dan
+menyederhanakannya agar siapa pun bisa memahami dan memodifikasinya secara
+mandiri — tanpa ketergantungan pada framework lain.
 
 - Loop agen berbasis langkah (ReAct)
 - Pemanggilan alat (tool-calling) via OpenAI-compatible API
@@ -99,8 +96,14 @@ Bootcamp-Agent/
 ```bash
 git clone https://github.com/Celebez/Bootcamp-Agent.git
 cd Bootcamp-Agent
+bash install.sh        # pasang dependensi + tampilkan animasi instalasi
+```
+
+Atau manual:
+```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+python scripts/install_anim.py   # jalankan animasi sambutan kapan pun
 ```
 
 ### Konfigurasi
