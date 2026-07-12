@@ -36,6 +36,28 @@ def get_mode() -> str:
     return os.environ.get("OML_MODE", "single").lower()
 
 
+def _parse_ids(raw: str) -> set[int]:
+    """Parse daftar ID (dipisah koma) menjadi set int.
+
+    Gagal-closed: bila ada token bukan angka, di produksi (OML_PROD=1)
+    seluruh daftar dibuang menjadi kosong (yang akan ditolak oleh guard di
+    bawah), agar konfigurasi salah tidak membuka akses ke siapa saja.
+    """
+    prod = os.environ.get("OML_PROD", "").lower() in ("1", "true", "yes")
+    out: set[int] = set()
+    for tok in raw.split(","):
+        tok = tok.strip()
+        if not tok:
+            continue
+        try:
+            out.add(int(tok))
+        except ValueError:
+            print(f"⚠️  ALLOWED id bukan angka diabaikan: {tok!r}")
+            if prod:
+                return set()
+    return out
+
+
 def build_agent():
     """Buat agen segar per tugas agar memori/state tak bocor antar chat.
 
@@ -199,8 +221,8 @@ def main():
         print("❌ Setel DISCORD_BOT_TOKEN dan/atau TELEGRAM_BOT_TOKEN (atau gunakan --discord-only/--telegram-only).")
         sys.exit(1)
 
-    guilds = {int(g) for g in os.environ.get("ALLOWED_DISCORD_GUILDS", "").split(",") if g.strip()}
-    users = {int(u) for u in os.environ.get("ALLOWED_TELEGRAM_USERS", "").split(",") if u.strip()}
+    guilds = _parse_ids(os.environ.get("ALLOWED_DISCORD_GUILDS", ""))
+    users = _parse_ids(os.environ.get("ALLOWED_TELEGRAM_USERS", ""))
 
     # Keamanan produksi: tolak mendengarkan bila kontrol akses terbuka lebar.
     prod = os.environ.get("OML_PROD", "").lower() in ("1", "true", "yes")
