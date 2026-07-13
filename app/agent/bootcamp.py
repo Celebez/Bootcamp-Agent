@@ -28,7 +28,7 @@ class Bootcamp(ToolCallAgent):
     next_step_prompt: str = NEXT_STEP_PROMPT
 
     max_observe: int = 10000
-    max_steps: int = 20
+    max_steps: int = 50
 
     available_tools: ToolCollection = Field(
         default_factory=lambda: ToolCollection(
