@@ -8,6 +8,10 @@
   <a href="https://www.celebez.my.id/"><img src="https://img.shields.io/badge/Built%20by-Celebez%20Research-FFD166?style=for-the-badge" alt="Built by Celebez Research"></a>
 </p>
 
+<p align="center">
+  <img src="assets/banner.png" width="720" alt="Bootcamp Agent banner"/>
+</p>
+
 **Contoh instalasi agen (animasi):**
 
 <img src="assets/demo.gif" width="480" alt="Demo instalasi Bootcamp Agent"/>
@@ -95,7 +99,10 @@ Bootcamp-Agent/
 ├── config/
 │   └── config.example.toml
 ├── scripts/
+│   ├── make_banner.py     # hasilkan assets/banner.png (banner default)
 │   └── make_demo_gif.py
+├── assets/
+│   └── banner.png         # banner default (bawaan, bebas dipakai)
 ├── tests_offline.py        # tes tanpa API
 └── workspace/              # direktori kerja agen
 ```
