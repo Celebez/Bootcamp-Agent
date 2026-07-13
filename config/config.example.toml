@@ -37,6 +37,15 @@ vercel_token = ""        # Vercel — aktifkan alat vercel
 cloudflare_token = ""    # Cloudflare — aktifkan alat cloudflare
 cloudflare_zone = ""     # Zone ID default untuk alat cloudflare
 
+# Generasi gambar (image_generation) — default NVIDIA GenAI FLUX.1-dev.
+# Isi api_key dengan key NVIDIA Anda. Default base_url & model sudah siap;
+# user cukup memasukkan API key sendiri agar alat aktif benar-benar generate.
+[image]
+base_url = "https://ai.api.nvidia.com/v1/genai/"
+api_key = ""             # isi key NVIDIA (nvapi-...) agar image_generation berfungsi
+model = "black-forest-labs/flux.1-dev"
+output_dir = "workspace/images"
+
 # Bot chat Telegram / Discord — semua opsional, cukup isi token untuk aktif.
 # Setelah diisi, jalankan: python bot/run_bot.py
 [bot]

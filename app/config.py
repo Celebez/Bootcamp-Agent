@@ -39,6 +39,14 @@ class IntegrationsSettings(BaseModel):
     cloudflare_zone: str = ""
 
 
+class ImageSettings(BaseModel):
+    """Konfigurasi alat image_generation (default NVIDIA FLUX.1-dev)."""
+    base_url: str = "https://ai.api.nvidia.com/v1/genai/"
+    api_key: str = ""
+    model: str = "black-forest-labs/flux.1-dev"
+    output_dir: str = "workspace/images"
+
+
 class BotSettings(BaseModel):
     telegram_token: str = ""
     discord_token: str = ""
@@ -53,6 +61,7 @@ class AppConfig(BaseModel):
     sandbox: Optional[SandboxSettings] = None
     store: Optional[StoreSettings] = None
     integrations: Optional[IntegrationsSettings] = None
+    image: Optional[ImageSettings] = None
     bot: Optional[BotSettings] = None
 
 
@@ -89,8 +98,9 @@ class Config:
             sandbox.mode = "off"
         store = StoreSettings(**raw["store"]) if raw.get("store") else None
         integrations = IntegrationsSettings(**raw["integrations"]) if raw.get("integrations") else None
+        image = ImageSettings(**raw["image"]) if raw.get("image") else None
         bot = BotSettings(**raw["bot"]) if raw.get("bot") else None
-        return Config._apply_env(AppConfig(llm=llm, sandbox=sandbox, store=store, integrations=integrations, bot=bot))
+        return Config._apply_env(AppConfig(llm=llm, sandbox=sandbox, store=store, integrations=integrations, image=image, bot=bot))
 
     @staticmethod
     def _apply_env(cfg: "AppConfig") -> "AppConfig":
@@ -131,6 +141,17 @@ class Config:
             b.allowed_discord_guilds = os.environ["ALLOWED_DISCORD_GUILDS"]
         if os.environ.get("OML_PROD") in ("1", "true", "yes"):
             b.prod = True
+        # Override image-generation (NVIDIA GenAI) dari environment.
+        img = cfg.image
+        if img is None:
+            img = ImageSettings()
+            cfg.image = img
+        if os.environ.get("OML_IMAGE_BASE_URL"):
+            img.base_url = os.environ["OML_IMAGE_BASE_URL"]
+        if os.environ.get("OML_IMAGE_API_KEY"):
+            img.api_key = os.environ["OML_IMAGE_API_KEY"]
+        if os.environ.get("OML_IMAGE_MODEL"):
+            img.model = os.environ["OML_IMAGE_MODEL"]
         return cfg
 
     @property
@@ -148,6 +169,10 @@ class Config:
     @property
     def integrations(self):
         return self._config.integrations
+
+    @property
+    def image(self):
+        return self._config.image
 
     @property
     def sandbox_policy(self) -> "SandboxPolicy":

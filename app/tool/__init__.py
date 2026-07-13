@@ -9,6 +9,7 @@ from app.tool.ask_human import AskHuman
 from app.tool.base import BaseTool, CLIResult, ToolFailure, ToolResult
 from app.tool.bash import Bash
 from app.tool.create_chat_completion import CreateChatCompletion
+from app.tool.image_generation import ImageGeneration
 from app.tool.integrations import (
     CaptchaSolver,
     CloudflareTool,
@@ -45,6 +46,7 @@ __all__ = [
     "StrReplaceEditor",
     "AskHuman",
     "CreateChatCompletion",
+    "ImageGeneration",
     "Terminate",
     "WebFetch",
     "Browser",

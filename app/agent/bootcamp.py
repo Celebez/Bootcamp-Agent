@@ -11,6 +11,8 @@ from app.prompt.bootcamp import NEXT_STEP_PROMPT, SYSTEM_PROMPT
 from app.tool import BROWSER_AVAILABLE, Browser, Terminate, ToolCollection
 from app.tool.ask_human import AskHuman
 from app.tool.bash import Bash
+from app.tool.create_chat_completion import CreateChatCompletion
+from app.tool.image_generation import ImageGeneration
 from app.tool.integration_loader import load_integration_tools
 from app.tool.python_execute import PythonExecute
 from app.tool.str_replace_editor import StrReplaceEditor
@@ -39,6 +41,7 @@ class Bootcamp(ToolCallAgent):
             _WEB_TOOL,
             AskHuman(),
             Terminate(),
+            ImageGeneration(),  # selalu tersedia; butuh API key [image] untuk benar-benar generate
             *load_integration_tools(),  # alat integrasi yang kredensialnya tersedia
         )
     )
